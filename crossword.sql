@@ -24,7 +24,7 @@ create table templates
 
   # картинка для попереднього перегляду існуючих решіток шаблонів
   _preview mediumblob
-) type=innodb;
+) engine=innodb;
 
 
 # таблиця з даними для шаблону решітки
@@ -47,7 +47,7 @@ create table grids
 
   # дані ячейки
   _value int not null
-) type=innodb;
+) engine=innodb;
 
 
 # таблиця зі словами
@@ -61,7 +61,7 @@ create table words
 
   # використано це слово при складанні кросворду чи ні
   _used boolean not null default false
-) type=innodb;
+) engine=innodb;
 
 
 # таблиця із запитаннями до слів
@@ -72,7 +72,7 @@ create table questions
 
   # запитання до слова
   _question text not null
-) type=innodb;
+) engine=innodb;
 
 
 # таблиця з даними про кросворд, отримана шляхом сканування шаблону решітки
@@ -122,7 +122,7 @@ create table private_data
 
   # орiєнтацiя слова в кросвордi (1-вертикальна, 0-горизонтальна)
   _orientation boolean not null
-) type=innodb;
+) engine=innodb;
 
 
 # таблиця про перетини слова
@@ -149,7 +149,7 @@ create table crosses
   # описується ця структура перетину). Посутi це поле є
   # покажчиком на слово яке перетинає актуальне слово.
   _numword int unsigned not null
-) type=innodb;
+) engine=innodb;
 
 
 # таблиця про використання кросвордів в пресі, інтернеті
@@ -172,6 +172,6 @@ create table uses
 
   # назва видання де використано кросворд
   _name text not null
-) type=innodb;
+) engine=innodb;
 
-# LOAD DATA INFILE 'd:\\crossword\\gui\\utf8_word.txt' INTO TABLE words (_word);
+LOAD DATA INFILE '/home/taras/Projects/qtCrossword/utf8_word.txt' INTO TABLE words (_word);
