@@ -771,7 +771,7 @@ void tableTemplateWidget::scanTemplate(void)
 {
     if (numRow == 0 && numCol == 0 && templateId != 0)
     {
-	qDebug() << "scanTemplate: Template dosen't choiced!";
+    qDebug() << "scanTemplate: Template doesn't choiced!";
 	return;
     }
 
@@ -799,7 +799,7 @@ void tableTemplateWidget::scanTemplate(void)
 	    if (nw2 >= 0)
 		cross->numWord2 = nw2;
 	    else
-		qDebug() << "scanTemplate: another word for this crosses dosen't finded!!!";
+        qDebug() << "scanTemplate: another word for this crosses doesn't finded!!!";
 	}
     }
 }
