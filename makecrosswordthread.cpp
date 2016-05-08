@@ -25,6 +25,7 @@ void makeCrosswordThread::run(void)
 	return;
     }
 
+    // TODO: lab1 and lab2 redesign to the do {} while cycles
 lab2:
     int curCross = 0;
     while (curCross < wi[curWord]->crossCount)
