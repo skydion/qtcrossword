@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   db.setHostName("localhost");
   db.setDatabaseName("crossword");
-  qDebug() << db.isValid();
+  //qDebug() << db.isValid();
   db.setUserName("root");
   db.setPassword("su112per");
   bool ok = db.open();
