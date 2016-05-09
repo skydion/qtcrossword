@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
   actionScan = actionMirror = actionMake = NULL;
   actionPrint = NULL;
   grid = NULL;
-  //    printpreview = NULL;
+  printpreview = NULL;
   previewTemplate = NULL;
   previewCell = NULL;
 
@@ -20,8 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   db.setHostName("localhost");
   db.setDatabaseName("crossword");
-  //qDebug() << db.isValid();
-  db.setUserName("root");
+  db.setUserName("taras");
   db.setPassword("su112per");
   bool ok = db.open();
 
@@ -48,8 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
       actionDelete = new QAction(QIcon(":/icons/delete16.png"), QString(tr("Delete")), this);
       connect(actionDelete, SIGNAL(triggered()), grid, SLOT(deleteTemplate()));
 
-      //	actionPrint = new QAction(QIcon(":/icons/preview16.png"), QString(tr("Print")), this);
-      //	connect(actionPrint, SIGNAL(triggered(bool)), this, SLOT(printCrossword()));
+      actionPrint = new QAction(QIcon(":/icons/preview16.png"), QString(tr("Print")), this);
+      connect(actionPrint, SIGNAL(triggered(bool)), this, SLOT(printCrossword()));
 
       actionExit = new QAction(QIcon(":/icons/x16.png"), QString(tr("Exit")), this);
       connect(actionExit, SIGNAL(triggered()), this, SLOT(exit()));
@@ -60,14 +59,14 @@ MainWindow::MainWindow(QWidget *parent) :
       menuFile->addAction(actionNew);
       menuFile->addAction(actionSave);
       menuFile->addAction(actionDelete);
-      //	menuFile->addAction(actionPrint);
+      menuFile->addAction(actionPrint);
       menuFile->addSeparator();
       menuFile->addAction(actionExit);
 
       ui->mainToolBar->addAction(actionNew);
       ui->mainToolBar->addAction(actionSave);
       ui->mainToolBar->addAction(actionDelete);
-      //	ui->mainToolBar->addAction(actionPrint);
+      ui->mainToolBar->addAction(actionPrint);
 
       // Edit menu
       ui->mainToolBar->addSeparator();
@@ -131,16 +130,16 @@ MainWindow::MainWindow(QWidget *parent) :
       connect(prnPreview, SIGNAL(paintRequested(QPrinter*)), grid, SLOT(printPreview(QPrinter*)));
       ui->horizontalLayout_8->addWidget(prnPreview);
 
-      //	printpreview = new QPrintPreviewWidget(printer, this);
-      //
-      //	if (printpreview)
-      //	{
-      //	    printpreview->fitInView();
-      //	    printpreview->show();
-      //
-      //	    ui->horizontalLayout_8->addWidget(printpreview);
-      //	    connect(printpreview, SIGNAL(paintRequested(QPrinter*)), grid, SLOT(printPreview(QPrinter*)));
-      //	}
+      printpreview = new QPrintPreviewWidget(printer, this);
+
+      if (printpreview)
+      {
+         printpreview->fitInView();
+         printpreview->show();
+
+         ui->horizontalLayout_8->addWidget(printpreview);
+         connect(printpreview, SIGNAL(paintRequested(QPrinter*)), grid, SLOT(printPreview(QPrinter*)));
+      }
     }
 }
 
@@ -231,18 +230,18 @@ void MainWindow::makedCrossword(void)
   ui->textBrowser->setDocument(d);
 }
 
-//void MainWindow::printCrossword(void)
-//{
-//    printpreview->updatePreview();
+void MainWindow::printCrossword(void)
+{
+    printpreview->updatePreview();
 
-//    QPrintDialog printDialog(printer, printpreview);
-//
-//    if (printDialog.exec() == QDialog::Accepted)
-//    {
-//	qDebug() << printpreview->numPages();
-//	printpreview->print();
-//    }
-//}
+    QPrintDialog printDialog(printer, printpreview);
+
+    if (printDialog.exec() == QDialog::Accepted)
+    {
+    qDebug() << printpreview->pageCount();
+    printpreview->print();
+    }
+}
 
 void MainWindow::loadListPreview(void)
 {

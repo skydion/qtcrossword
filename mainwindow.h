@@ -36,7 +36,7 @@ public slots:
 
 protected slots:
     void makedCrossword(void);
-//    void printCrossword(void);
+    void printCrossword(void);
 
 protected:
     void changeEvent(QEvent *e);
@@ -47,7 +47,7 @@ private:
     QPrinter *printer;
 
     QPrintPreviewDialog *prnPreview;
-//    QPrintPreviewWidget *printpreview;
+    QPrintPreviewWidget *printpreview;
     QSqlDatabase db;
     Ui::MainWindow *ui;
 
