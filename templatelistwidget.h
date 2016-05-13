@@ -9,21 +9,21 @@
 
 class TemplateListWidget : public QListWidget
 {
-Q_OBJECT
+  Q_OBJECT
 public:
-    explicit TemplateListWidget(QWidget *parent = 0);
+  explicit TemplateListWidget(QWidget *parent = 0);
 
-    void setTemplateGrid(tableTemplateWidget *ttw);
+  void setTemplateGrid(tableTemplateWidget *ttw);
 
 protected:
-    tableTemplateWidget *grid;
+  tableTemplateWidget *grid;
 
 protected:
 
 protected slots:
-    void updateGrid(QListWidgetItem *item);
-    void updateList(int id);
-    void deleteItem(int id);
+  void updateGrid(QListWidgetItem *item);
+  void updateList(int id);
+  void deleteItem(int id);
 
 signals:
 

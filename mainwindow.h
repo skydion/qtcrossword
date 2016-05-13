@@ -20,44 +20,44 @@
 #include "previewcelldelegate.h"
 
 namespace Ui {
-    class MainWindow;
+  class MainWindow;
 }
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+  MainWindow(QWidget *parent = 0);
+  ~MainWindow();
 
-    QString readStyleSheet(QString fileName);
+  QString readStyleSheet(QString fileName);
 
 public slots:
-    void exit(void);
+  void exit(void);
 
 protected slots:
-    void makedCrossword(void);
-    void printCrossword(void);
+  void makedCrossword(void);
+  void printCrossword(void);
 
 protected:
-    void changeEvent(QEvent *e);
-    bool event(QEvent *e);
-    void loadListPreview(void);
+  void changeEvent(QEvent *e);
+  bool event(QEvent *e);
+  void loadListPreview(void);
 
 private:
-    QPrinter *printer;
+  QPrinter *printer;
 
-    QPrintPreviewDialog *prnPreview;
-    QPrintPreviewWidget *printpreview;
-    QSqlDatabase db;
-    Ui::MainWindow *ui;
+  QPrintPreviewDialog *prnPreview;
+  QPrintPreviewWidget *printpreview;
+  QSqlDatabase db;
+  Ui::MainWindow *ui;
 
-    QAction *actionNew, *actionSave, *actionDelete, *actionExit;
-    QAction *actionScan, *actionMirror, *actionMake, *actionPrint;
+  QAction *actionNew, *actionSave, *actionDelete, *actionExit;
+  QAction *actionScan, *actionMirror, *actionMake, *actionPrint;
 
-    tableTemplateWidget *grid;
+  tableTemplateWidget *grid;
 
-    PreviewTemplateDelegate *previewTemplate;
-    PreviewCellDelegate *previewCell;
+  PreviewTemplateDelegate *previewTemplate;
+  PreviewCellDelegate *previewCell;
 };
 
 #endif // MAINWINDOW_H

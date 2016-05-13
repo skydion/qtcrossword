@@ -5,12 +5,12 @@
 
 class proxyTableToList : public QAbstractProxyModel
 {
-Q_OBJECT
+  Q_OBJECT
 public:
-    explicit proxyTableToList(QObject *parent = 0);
+  explicit proxyTableToList(QObject *parent = 0);
 
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+  QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+  QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
 
 signals:
 

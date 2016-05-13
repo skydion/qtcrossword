@@ -7,19 +7,19 @@
 
 class PreviewCellDelegate : public QStyledItemDelegate
 {
-Q_OBJECT
+  Q_OBJECT
 public:
-    explicit PreviewCellDelegate(QWidget *parent = 0);
+  explicit PreviewCellDelegate(QWidget *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 signals:
 
 public slots:
 
 private:
-    QFont font;
+  QFont font;
 };
 
 #endif // PREVIEWCELLDELEGATE_H

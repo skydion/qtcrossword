@@ -91,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
       ui->mainToolBar->addAction(actionMake);
       menuEdit->addAction(actionMake);
 
-      //	grid->setStyleSheet(readStyleSheet("d:\\Crossword\\gui\\qribbon.qss"));
+      //	grid->setStyleSheet(readStyleSheet("/home/taras/Projects/qtCrossword/gui/qribbon.qss"));
       grid->setSymetricalMode(true);
       ui->horizontalLayout->addWidget(grid);
       ui->listWidget->setTemplateGrid(grid);
@@ -133,13 +133,13 @@ MainWindow::MainWindow(QWidget *parent) :
       printpreview = new QPrintPreviewWidget(printer, this);
 
       if (printpreview)
-      {
-         printpreview->fitInView();
-         printpreview->show();
+        {
+          printpreview->fitInView();
+          printpreview->show();
 
-         ui->horizontalLayout_8->addWidget(printpreview);
-         connect(printpreview, SIGNAL(paintRequested(QPrinter*)), grid, SLOT(printPreview(QPrinter*)));
-      }
+          ui->horizontalLayout_8->addWidget(printpreview);
+          connect(printpreview, SIGNAL(paintRequested(QPrinter*)), grid, SLOT(printPreview(QPrinter*)));
+        }
     }
 }
 
@@ -232,14 +232,14 @@ void MainWindow::makedCrossword(void)
 
 void MainWindow::printCrossword(void)
 {
-    printpreview->updatePreview();
+  printpreview->updatePreview();
 
-    QPrintDialog printDialog(printer, printpreview);
+  QPrintDialog printDialog(printer, printpreview);
 
-    if (printDialog.exec() == QDialog::Accepted)
+  if (printDialog.exec() == QDialog::Accepted)
     {
-    qDebug() << printpreview->pageCount();
-    printpreview->print();
+      qDebug() << printpreview->pageCount();
+      printpreview->print();
     }
 }
 

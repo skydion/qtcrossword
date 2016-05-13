@@ -11,12 +11,12 @@
 
 class PreviewTemplateDelegate : public QStyledItemDelegate
 {
-Q_OBJECT
+  Q_OBJECT
 public:
-    explicit PreviewTemplateDelegate(QObject *parent = 0);
+  explicit PreviewTemplateDelegate(QObject *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 signals:
 
