@@ -275,8 +275,6 @@ void makeCrosswordThread::setVocabulary(int vocabulary)
                       wd.append(WD);
                     }
                 }
-              //		else
-              //		    qDebug() << word;
             }
         }
     }
