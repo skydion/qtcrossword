@@ -1,3 +1,7 @@
+# CREATE USER 'taras'@'localhost' IDENTIFIED BY 'su112per';
+# GRANT ALL PRIVILEGES ON *.* TO 'taras'@'localhost';
+# FLUSH PRIVILEGES;
+
 drop database if exists crossword;
 
 create database crossword DEFAULT CHARACTER SET = UTF8;
