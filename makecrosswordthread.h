@@ -48,6 +48,7 @@ protected:
   void clearWord(int crossedWord);
 
 signals:
+  void showStatusBarMessage(QString msg);
 
 public slots:
 

@@ -22,6 +22,7 @@ void makeCrosswordThread::run(void)
   else
     {
       qDebug() << tr("makeCrossword: Can't find any word for startup!");
+      emit showStatusBarMessage( tr("makeCrossword: Can't find any word for startup!") );
       return;
     }
 
@@ -53,6 +54,7 @@ lab1:
               else
                 {
                   qDebug() << tr("makeCrossword: Stack is empty!");
+                  emit showStatusBarMessage( tr("makeCrossword: Stack is empty!") );
                   return;
                 }
             }
