@@ -475,7 +475,7 @@ void tableTemplateWidget::saveToDB()
           value << val;
         }
 
-      pb->setValue(((i+1)*(j+1)+j)/20);
+      pb->setValue(i*numRow+j*numCol);
     }
   pngPainter->end();
 
@@ -514,7 +514,6 @@ void tableTemplateWidget::saveToDB()
   delete image;
   delete pngPainter;
 
-  pb->setValue(100);
   sb->removeWidget(pb);
   sb->showMessage(tr("Template saved"), 2000);
 
@@ -1226,7 +1225,6 @@ void tableTemplateWidget::makeFinished(void)
   emit maked();
 }
 
-
 void tableTemplateWidget::prepareQuestions(void)
 {
   if (questionsH != "" && questionsV != "")
@@ -1354,3 +1352,9 @@ void tableTemplateWidget::prepareQuestions(void)
 //	doc.drawContents(&painter/*, clip*/);
 //	painter.restore();
 // end test code
+
+void tableTemplateWidget::setStatusBar(QStatusBar *qsb)
+{
+  sb = qsb;
+  connect(mct, SIGNAL(showStatusBarMessage(QString)), sb, SLOT(showMessage(QString)));
+}

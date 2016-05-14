@@ -34,7 +34,7 @@ public:
   ~tableTemplateWidget();
 
   void setTemplateId(int id) { templateId = id; }
-  void setStatusBar(QStatusBar *qsb) { sb = qsb; }
+  void setStatusBar(QStatusBar *qsb);
   bool checkDirty(void) { return isDirty; }
   void setDB(QSqlDatabase *sqlDB) { db = sqlDB; }
   QTextDocument* getDocument(void) { return &doc; }
