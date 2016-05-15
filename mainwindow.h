@@ -8,6 +8,7 @@
 #include <QDataStream>
 #include <QtSql>
 #include <QMessageBox>
+#include <QComboBox>
 #include <QAction>
 #include <QMap>
 #include <QtGlobal>
@@ -37,6 +38,7 @@ public slots:
 protected slots:
   void makedCrossword(void);
   void printCrossword(void);
+  void setVocabulary(int index);
 
 protected:
   void changeEvent(QEvent *e);
@@ -58,6 +60,8 @@ private:
 
   PreviewTemplateDelegate *previewTemplate;
   PreviewCellDelegate *previewCell;
+
+  QComboBox *vcb;
 };
 
 #endif // MAINWINDOW_H

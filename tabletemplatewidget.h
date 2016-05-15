@@ -100,6 +100,7 @@ public slots:
   void setSymetricalMode(bool value) { symetricalMode = value; }
   void makeCrossword(void);
   void printPreview(QPrinter *prn);
+  void setVocabulary(int vocabularyId);
 
 protected slots:
   void rmColumn(void);

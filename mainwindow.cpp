@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
   actionNew = actionSave = actionDelete = actionExit = NULL;
   actionScan = actionMirror = actionMake = NULL;
   actionPrint = NULL;
+  vcb = NULL;
   grid = NULL;
   printpreview = NULL;
   previewTemplate = NULL;
@@ -73,10 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
       QMenu *menuEdit = new QMenu(tr("Edit"), this);
       ui->menuBar->addMenu(menuEdit);
-      //	actionScan = new QAction(QIcon(":/icons/search16.png"), QString(tr("Scan")), this);
-      //	connect(actionScan, SIGNAL(triggered()), grid, SLOT(scanTemplate()));
-      //	ui->mainToolBar->addAction(actionScan);
-      //	menuEdit->addAction(actionScan);
+      //  actionScan = new QAction(QIcon(":/icons/search16.png"), QString(tr("Scan")), this);
+      //  connect(actionScan, SIGNAL(triggered()), grid, SLOT(scanTemplate()));
+      //  ui->mainToolBar->addAction(actionScan);
+      //  menuEdit->addAction(actionScan);
 
       actionMirror = new QAction(QIcon(":/icons/favorites16.png"), QString(tr("Mirror")), this);
       actionMirror->setCheckable(true);
@@ -91,7 +92,49 @@ MainWindow::MainWindow(QWidget *parent) :
       ui->mainToolBar->addAction(actionMake);
       menuEdit->addAction(actionMake);
 
-      //	grid->setStyleSheet(readStyleSheet("/home/taras/Projects/qtCrossword/gui/qribbon.qss"));
+      vcb = new QComboBox(this);
+      if (vcb)
+      {
+          QFont font;
+          font.setPointSize(10);
+          font.setBold(true);
+
+	  vcb->setFixedSize(350, 32);
+	  vcb->setMaxVisibleItems(20);
+	  vcb->setFont(font);
+
+	  vcb->addItem("УСЕ (Універсальний словник-енциклопедія)", QVariant(29));
+	  vcb->addItem("Орфографічний словник української мови", QVariant(35));
+	  vcb->addItem("Фразеологічний словник української мови", QVariant(49));
+	  vcb->addItem("Словник синонімів Полюги", QVariant(31));
+	  vcb->addItem("Словник синонімів Караванського", QVariant(41));
+	  vcb->addItem("Словник іншомовних слів", QVariant(36));
+	  vcb->addItem("Словник іншомовних слів Мельничука", QVariant(42));
+	  vcb->addItem("Словник англіцизмів", QVariant(46));
+	  vcb->addItem("Eкономічна енциклопедія", QVariant(38));
+	  vcb->addItem("Словник мови Стуса", QVariant(27));
+	  vcb->addItem("Словник іншомовних соціокультурних термінів", QVariant(39));
+	  vcb->addItem("Енциклопедія політичної думки", QVariant(40));
+	  vcb->addItem("Словник церковно-обрядової термінології", QVariant(43));
+	  vcb->addItem("Архітектура і монументальне мистецтво", QVariant(44));
+	  vcb->addItem("Словник-антисуржик", QVariant(45));
+	  vcb->addItem("Словник термінів, уживаних у чинному Законодавстві України", QVariant(48));
+	  vcb->addItem("Словник бюджетної термінології", QVariant(50));
+	  vcb->addItem("Термінологічний словник з економіки праці", QVariant(51));
+	  vcb->addItem("Глосарій термінів Фондового ринку", QVariant(52));
+	  vcb->addItem("Моделювання економіки", QVariant(53));
+	  vcb->addItem("Власні імена людей", QVariant(54));
+	  vcb->addItem("Словар українського сленгу", QVariant(57));
+	  vcb->addItem("Музичні терміни", QVariant(58));
+	  vcb->addItem("Тлумачний словник з інформатики та інформаційних систем для економістів", QVariant(59));
+	  vcb->addItem("Управління якістю", QVariant(61));
+
+	  ui->mainToolBar->insertWidget(actionMake, vcb);
+	  connect(vcb, SIGNAL(currentIndexChanged(int)), this, SLOT(setVocabulary(int)));
+	  setVocabulary(vcb->currentIndex());
+      }
+
+      //  grid->setStyleSheet(readStyleSheet("/home/taras/Projects/qtCrossword/gui/qribbon.qss"));
       grid->setSymetricalMode(true);
       ui->horizontalLayout->addWidget(grid);
       ui->listWidget->setTemplateGrid(grid);
@@ -305,4 +348,10 @@ void MainWindow::loadListPreview(void)
     }
   else
     qDebug() << "loadListPreview: " << le.text();
+}
+
+void MainWindow::setVocabulary(int index)
+{
+    int vocId = vcb->itemData(index, Qt::UserRole).toInt();
+    grid->setVocabulary(vocId);
 }

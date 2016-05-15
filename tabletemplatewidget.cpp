@@ -71,11 +71,6 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
 
   mct = new makeCrosswordThread(wi, this);
 
-  if (mct)
-    {
-      mct->setVocabulary(29);
-    }
-
   QTextOption to;
   to.setWrapMode(QTextOption::WordWrap);
   to.setAlignment(Qt::AlignJustify);
@@ -1017,7 +1012,7 @@ void tableTemplateWidget::makeCrossword(void)
 {
   if (templateId == 0)
     {
-      qDebug() << "makeCrossword: Template dosen't choiced!";
+      qDebug() << tr("makeCrossword: Template dosen't choiced!");
       emit maked();
 
       return;
@@ -1357,4 +1352,12 @@ void tableTemplateWidget::setStatusBar(QStatusBar *qsb)
 {
   sb = qsb;
   connect(mct, SIGNAL(showStatusBarMessage(QString)), sb, SLOT(showMessage(QString)));
+}
+
+void tableTemplateWidget::setVocabulary(int vocabularyId)
+{
+  qDebug() << "Set vocabulary to the: " << vocabularyId;
+
+  if (mct)
+    mct->setVocabulary(vocabularyId);
 }

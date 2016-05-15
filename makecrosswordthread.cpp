@@ -12,7 +12,7 @@ void makeCrosswordThread::run(void)
   if (stop)
     return;
 
-  if (!vocabularyId)
+  if (vocabularyId == 0)
     return;
 
   int curWord = 0;
