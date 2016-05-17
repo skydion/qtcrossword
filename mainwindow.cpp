@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
       {
           QFont font;
           font.setPointSize(10);
-          font.setBold(true);
+          //font.setBold(true);
 
 	  vcb->setFixedSize(350, 32);
 	  vcb->setMaxVisibleItems(20);
@@ -134,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	  setVocabulary(vcb->currentIndex());
       }
 
-      //  grid->setStyleSheet(readStyleSheet("/home/taras/Projects/qtCrossword/gui/qribbon.qss"));
+      //grid->setStyleSheet(readStyleSheet("/home/taras/Projects/qtCrossword/qribbon.qss"));
       grid->setSymetricalMode(true);
       ui->horizontalLayout->addWidget(grid);
       ui->listWidget->setTemplateGrid(grid);
