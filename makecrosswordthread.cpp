@@ -17,7 +17,8 @@ void makeCrosswordThread::run(void)
 
   int curWord = 0;
 
-  if (findWord(curWord) && workStack.isEmpty())
+  // Знаходимо перше слово якщо стек пустий. А що коли не пустий? Чому виходимо?
+  if ( findWord(curWord) && workStack.isEmpty())
     workStack.push(curWord);
   else
     {
@@ -26,55 +27,61 @@ void makeCrosswordThread::run(void)
       return;
     }
 
-  // TODO: lab1 and lab2 redesign to the do {} while cycles
-lab2:
-  int curCross = 0;
-  while (curCross < wi[curWord]->crossCount)
+  while ( !workStack.isEmpty() )
     {
-      int crossedWord = wi[curWord]->cil[curCross]->numWord;
-
-      if ( !wi[crossedWord]->filled )
+      int curCross = 0;
+      while (curCross < wi[curWord]->crossCount)
         {
-lab1:
-          if (findWord(crossedWord))
+          int crossedWord = wi[curWord]->cil[curCross]->numWord;
+
+          if ( !wi[crossedWord]->filled )
             {
-              workStack.push(crossedWord);
-              curCross = 0;
-              curWord = crossedWord;
+              do
+                {
+                  if ( findWord(crossedWord) )
+                    {
+                      workStack.push(crossedWord);
+                      curCross = 0;
+                      curWord = crossedWord;
+                      break;
+                    }
+                  else
+                    {
+                      clearWord(crossedWord);
+
+                      if ( workStack.isEmpty() )
+                        {
+                          qDebug() << tr("makeCrossword: Stack is empty!");
+                          emit showStatusBarMessage( tr("makeCrossword: Stack is empty!") );
+                          return;
+                        }
+                      else
+                        crossedWord = workStack.pop();
+                    }
+                }
+              while ( true );
             }
           else
             {
-              clearWord(crossedWord);
+              if ( wi[curWord]->crossCount == 1 )
+                workStack.push(crossedWord);
 
-              if ( !workStack.isEmpty() )
-                {
-                  crossedWord = workStack.pop();
-                  goto lab1;
-                }
-              else
-                {
-                  qDebug() << tr("makeCrossword: Stack is empty!");
-                  emit showStatusBarMessage( tr("makeCrossword: Stack is empty!") );
-                  return;
-                }
+              curCross++;
             }
         }
-      else
+
+      // Подивитися що робить ця умова. Як я пригадую, це може бути на фінішну перевірку стеку
+      // тобто десь можуть бути окремі блоки не привязані до основного кросворду, ніби
+      // кросворд в кросворді. Або якесь інше призначення, може і лишня умова.
+      if ( workStack.isEmpty() )
         {
-          if (wi[curWord]->crossCount == 1)
-            workStack.push(crossedWord);
-
-          curCross++;
+          qDebug() << tr("makeCrossword: Done");
+          emit showStatusBarMessage( tr("makeCrossword: Done") );
+          return;
         }
+      else
+        curWord = workStack.pop();
     }
-
-  if ( !workStack.isEmpty() )
-    {
-      curWord = workStack.pop();
-      goto lab2;
-    }
-  else
-    return;
 }
 
 bool makeCrosswordThread::findWord(int curWord)
