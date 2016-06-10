@@ -134,12 +134,11 @@ void tableTemplateWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void tableTemplateWidget::rmColumn(void)
 {
-  int lc, cc, count;
+  int lc, cc;
 
   selectionRange = selectedRanges();
-  count = selectionRange.count();
 
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < selectionRange.count(); i++)
     {
       lc = selectionRange[i].leftColumn();
       cc = selectionRange[i].columnCount();
@@ -154,12 +153,11 @@ void tableTemplateWidget::rmColumn(void)
 
 void tableTemplateWidget::rmRow(void)
 {
-  int tr, rc, count;
+  int tr, rc;
 
   selectionRange = selectedRanges();
-  count = selectionRange.count();
 
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < selectionRange.count(); i++)
     {
       tr = selectionRange[i].topRow();
       rc = selectionRange[i].rowCount();
@@ -174,13 +172,12 @@ void tableTemplateWidget::rmRow(void)
 
 void tableTemplateWidget::insColumn(void)
 {
-  int lc, cc, count;
+  int lc, cc;
   int i, j;
 
   selectionRange = selectedRanges();
-  count = selectionRange.count();
 
-  for (i = 0; i < count; i++)
+  for (i = 0; i < selectionRange.count(); i++)
     {
       lc = selectionRange[i].leftColumn();
       cc = selectionRange[i].columnCount();
@@ -201,13 +198,12 @@ void tableTemplateWidget::insColumn(void)
 
 void tableTemplateWidget::insRow(void)
 {
-  int tr, rc, count;
+  int tr, rc;
   int i, j;
 
   selectionRange = selectedRanges();
-  count = selectionRange.count();
 
-  for (i = 0; i < count; i++)
+  for (i = 0; i < selectionRange.count(); i++)
     {
       tr = selectionRange[i].topRow();
       rc = selectionRange[i].rowCount();
@@ -510,15 +506,12 @@ void tableTemplateWidget::saveToDB()
   image->save(&blob, "PNG");
   blob.close();
 
-  countWords = wi.count();
-  qDebug() << "saveToDB: countWords = " << countWords;
-
   query.prepare("UPDATE crossword.templates SET _rows = ?, _columns = ?, "
                 "_preview = ?, _count_words = ? WHERE _id = ?;");
   query.addBindValue(QVariant(numRow));
   query.addBindValue(QVariant(numCol));
   query.addBindValue(QVariant(blob.data()));
-  query.addBindValue(QVariant(countWords));
+  query.addBindValue(QVariant(wi.count()));
   query.addBindValue(QVariant(templateId));
   query.exec();
 
@@ -540,7 +533,6 @@ void tableTemplateWidget::saveToDB()
 
 void tableTemplateWidget::savePrivateData(void)
 {
-  int count = wi.count();
   int lastId = 0, cc = 0;
 
   crossInfo *cross;
@@ -574,7 +566,7 @@ void tableTemplateWidget::savePrivateData(void)
   QSqlDriver *drv = db->driver();
 
   drv->beginTransaction();
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < wi.count(); i++)
     {
       query.prepare("INSERT INTO crossword.private_data (_template, _numword, "
                     "_row, _column, _lenght, _crosscount, _orientation) "
@@ -798,11 +790,10 @@ void tableTemplateWidget::scanTemplate(void)
   scanVertical();
 
   int cc = 0, nw = 0, nw2 = 0;
-  int count = wi.count();
   crossInfo *cross;
 
   // шукаємо інші слова з якими перетинаємося
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < wi.count(); i++)
     {
       cc = wi[i]->crossCount;
       nw = wi[i]->numWord;
@@ -1018,9 +1009,8 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
 int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
 {
   int row2 = 0, col2 = 0, cc2 = 0, nw2 = 0;
-  int count2 = wi.count();
 
-  for (int i = 0; i < count2; i++)
+  for (int i = 0; i < wi.count(); i++)
     {
       nw2 = wi[i]->numWord;
 
@@ -1078,14 +1068,13 @@ void tableTemplateWidget::makeCrossword(void)
 
 void tableTemplateWidget::displayCrossword(void)
 {
-  int count, row, col, len;
+  int row, col, len;
   bool orient;
   QString text;
 
   QTableWidgetItem *cell = NULL;
 
-  count = wi.count();
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < wi.count(); i++)
     {
       row = wi[i]->row;
       col = wi[i]->col;
@@ -1205,9 +1194,7 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
     QString res;
     text = "%1.%2; ";
 
-    int count = wi.count();
-
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < wi.count(); i++)
       {
         if (wi[i]->text != "")
           res += text.arg(wi[i]->numWord+1).arg(wi[i]->text);
@@ -1265,14 +1252,14 @@ void tableTemplateWidget::prepareQuestions(void)
   query.prepare("SELECT _question FROM slovopedia.works WHERE _id = ?;");
 
   QString question, text = "%1.%2; ";
-  int questionNo, i, count = wi.count(), countRecords;
+  int questionNo, i, countRecords;
 
   QMap<int, QString> questionMap;
   QMap<int, QString>::iterator it;
 
   questionsV = "<html><body>";
   questionsV += "<b>По вертикалі:</b><br>\n";
-  for (i = 0; i < count; i++)
+  for (i = 0; i < wi.count(); i++)
     {
       if (wi[i]->orient == vertical)
         {
@@ -1307,7 +1294,7 @@ void tableTemplateWidget::prepareQuestions(void)
 
   questionsH = "\n\n<br><br><html><body>";
   questionsH += "<b>По горизонталі:</b><br>\n";
-  for (i = 0; i < count; i++)
+  for (i = 0; i < wi.count(); i++)
     {
       if (wi[i]->orient == horizontal)
         {

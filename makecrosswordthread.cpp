@@ -4,7 +4,7 @@ makeCrosswordThread::makeCrosswordThread(QList<wordInfo*> &lwi, QObject *parent)
   QThread(parent), wi(lwi)
 {
   vocabularyId = 0;
-  count = 0;
+  numberOfWordsInVocabulary = 0;
 }
 
 void makeCrosswordThread::run(void)
@@ -87,8 +87,6 @@ void makeCrosswordThread::run(void)
             }
         }
 
-      qDebug() << "run: foundedWords[" << foundedWords << "], " << "countWords[" << wi.count() << "]";
-
       // Подивитися що робить ця умова. Як я пригадую, це може бути на фінішну перевірку стеку
       // тобто десь можуть бути окремі блоки не привязані до основного кросворду, ніби
       // кросворд в кросворді. Або якесь інше призначення, може і лишня умова.
@@ -115,7 +113,7 @@ bool makeCrosswordThread::findWord(int curWord)
   bool match = false;
   int li = wi[curWord]->listIndex;
 
-  for (int i = li; i < count; i++)
+  for (int i = li; i < numberOfWordsInVocabulary; i++)
     {
       if (wd[i]->used == false)
         {
@@ -188,6 +186,11 @@ bool makeCrosswordThread::findWord(int curWord)
   return false;
 }
 
+
+/*
+ * створюємо шаблон слова по наявній інформації з перетинів
+ * які має дане слово з іншими словами, повертаємо регекс.
+ */
 QString makeCrosswordThread::createTemplate(int curWord)
 {
   wordInfo *w = wi[curWord], *w2 = NULL;
@@ -224,7 +227,7 @@ void makeCrosswordThread::clearWord(int crossedWord)
   w->text = "";
   w->filled = false;
 
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < numberOfWordsInVocabulary; i++)
     {
       if (w->wordId == wd[i]->id)
         wd[i]->used = false;
@@ -259,7 +262,7 @@ void makeCrosswordThread::setVocabulary(int vocabulary)
   vocabularyId = vocabulary;
 
   wd.clear();
-  count = 0;
+  numberOfWordsInVocabulary = 0;
 
   int id = -1, countRecord = -1;
 
@@ -308,5 +311,5 @@ void makeCrosswordThread::setVocabulary(int vocabulary)
         }
     }
 
-  count = wd.count();
+  numberOfWordsInVocabulary = wd.count();
 }

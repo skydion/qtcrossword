@@ -60,7 +60,7 @@ private:
   int vocabularyId;
 
   // кількість слів в словнику по якому складаємо кросворд
-  int count;
+  int numberOfWordsInVocabulary;
   QList<wordData*> wd;
 };
 
