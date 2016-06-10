@@ -18,11 +18,17 @@ void makeCrosswordThread::run(void)
   // перше слово в шаблоні
   int curWord = 0;
 
+  // кільки слів ми знайшли
+  int foundedWords = 0;
+
   //
   // Знаходимо перше слово якщо стек пустий. А що коли не пустий? Чому виходимо?
   //
   if ( findWord(curWord) && workStack.isEmpty())
-    workStack.push(curWord);
+    {
+      workStack.push(curWord);
+      foundedWords++;
+    }
   else
     {
       qDebug() << tr("makeCrossword: Can't find any word for startup!");
@@ -48,6 +54,7 @@ void makeCrosswordThread::run(void)
                     {
                       workStack.push(crossedWord);
                       curCross = 0;
+                      foundedWords++;
                       curWord = crossedWord;
                       break;
                     }
@@ -62,7 +69,10 @@ void makeCrosswordThread::run(void)
                           return;
                         }
                       else
-                        crossedWord = workStack.pop();
+                        {
+                          crossedWord = workStack.pop();
+                          foundedWords--;
+                        }
                     }
                 }
               while ( true );
@@ -72,9 +82,12 @@ void makeCrosswordThread::run(void)
               if ( wi[curWord]->crossCount == 1 )
                 workStack.push(crossedWord);
 
+              foundedWords++;
               curCross++;
             }
         }
+
+      qDebug() << "run: foundedWords[" << foundedWords << "], " << "countWords[" << wi.count() << "]";
 
       // Подивитися що робить ця умова. Як я пригадую, це може бути на фінішну перевірку стеку
       // тобто десь можуть бути окремі блоки не привязані до основного кросворду, ніби
@@ -86,7 +99,10 @@ void makeCrosswordThread::run(void)
           return;
         }
       else
-        curWord = workStack.pop();
+        {
+          curWord = workStack.pop();
+          foundedWords--;
+        }
     }
 }
 

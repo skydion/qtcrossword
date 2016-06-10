@@ -24,15 +24,15 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
   DRC[3][0] = 0;
   DRC[3][1] = -1;
 
-  Crosses[0] = 3;
-  Crosses[1] = 6;
-  Crosses[2] = 7;
-  Crosses[3] = 9;
-  Crosses[4] = 11;
-  Crosses[5] = 12;
-  Crosses[6] = 13;
-  Crosses[7] = 14;
-  Crosses[8] = 15;
+  intersections[0] = 3;
+  intersections[1] = 6;
+  intersections[2] = 7;
+  intersections[3] = 9;
+  intersections[4] = 11;
+  intersections[5] = 12;
+  intersections[6] = 13;
+  intersections[7] = 14;
+  intersections[8] = 15;
 
   fullCell = Qt::yellow;
   emptyCell = Qt::darkRed;
@@ -79,7 +79,7 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
   to.setAlignment(Qt::AlignJustify);
 
   doc.setDefaultTextOption(to);
-  //    doc.setDefaultFont(font);
+  //doc.setDefaultFont(font);
 }
 
 tableTemplateWidget::~tableTemplateWidget()
@@ -237,7 +237,7 @@ void tableTemplateWidget::loadFromDB()
   isMaked = false;
 
   int countRecord = -1;
-  int rowNo, colNo, valNo, countWordNo;
+  int rowNo, colNo, valNo, countWordsNo;
   int row, col, val;
   QSqlQuery query;
 
@@ -259,11 +259,11 @@ void tableTemplateWidget::loadFromDB()
 
           rowNo = query.record().indexOf("_rows");
           colNo = query.record().indexOf("_columns");
-          countWordNo = query.record().indexOf("_count_words");
+          countWordsNo = query.record().indexOf("_count_words");
 
           numRow = query.value(rowNo).toInt();
           numCol = query.value(colNo).toInt();
-          countWords = query.value(countWordNo).toInt();
+          countWords = query.value(countWordsNo).toInt();
 
           setRowCount(numRow);
           setColumnCount(numCol);
@@ -510,14 +510,14 @@ void tableTemplateWidget::saveToDB()
   image->save(&blob, "PNG");
   blob.close();
 
+  countWords = wi.count();
+  qDebug() << "saveToDB: countWords = " << countWords;
+
   query.prepare("UPDATE crossword.templates SET _rows = ?, _columns = ?, "
                 "_preview = ?, _count_words = ? WHERE _id = ?;");
   query.addBindValue(QVariant(numRow));
   query.addBindValue(QVariant(numCol));
   query.addBindValue(QVariant(blob.data()));
-
-  countWords = wi.count();
-  qDebug() << "saveToDB: countWords = " << countWords;
   query.addBindValue(QVariant(countWords));
   query.addBindValue(QVariant(templateId));
   query.exec();
@@ -826,14 +826,14 @@ void tableTemplateWidget::scanTemplate(void)
  */
 void tableTemplateWidget::scanHorizontal(void)
 {
-  int wordLength, countCross;
+  int wordLength, countOfIntersection;
   int resrow = 0, rescol = 0, reswl = 0;
   QTableWidgetItem *cell = NULL;
   int value = -1;
 
   for (int i = 0; i < numRow; i++)
     {
-      wordLength = countCross = 0;
+      wordLength = countOfIntersection = 0;
 
       for (int j = 0; j < numCol; j++)
         {
@@ -848,11 +848,11 @@ void tableTemplateWidget::scanHorizontal(void)
                   rescol = j;
                 }
 
-              int cross = isCrosses(i, j);
-              if (cross)
+              int intersection = typeOfIntersection(i, j);
+              if (intersection)
                 {
-                  updateCell(cell, cross);
-                  countCross++;
+                  updateCell(cell, intersection);
+                  countOfIntersection++;
                 }
 
               wordLength++;
@@ -861,13 +861,13 @@ void tableTemplateWidget::scanHorizontal(void)
             {
               reswl = wordLength;
               wordLength = 0;
-              saveResult(resrow, rescol, reswl, horizontal, countCross);
-              countCross = 0;
+              saveResult(resrow, rescol, reswl, horizontal, countOfIntersection);
+              countOfIntersection = 0;
             }
         }
 
       reswl = wordLength;
-      saveResult(resrow, rescol, reswl, horizontal, countCross);
+      saveResult(resrow, rescol, reswl, horizontal, countOfIntersection);
     }
 }
 
@@ -876,14 +876,14 @@ void tableTemplateWidget::scanHorizontal(void)
  */
 void tableTemplateWidget::scanVertical(void)
 {
-  int wordLength, countCross;
+  int wordLength, countOfIntersection;
   int resrow = 0, rescol = 0, reswl = 0;
   QTableWidgetItem *cell = NULL;
   int value = -1;
 
   for (int i = 0; i < numCol; i++)
     {
-      wordLength = countCross = 0;
+      wordLength = countOfIntersection = 0;
 
       for (int j = 0; j < numRow; j++)
         {
@@ -898,11 +898,11 @@ void tableTemplateWidget::scanVertical(void)
                   rescol = i;
                 }
 
-              int cross = isCrosses(j, i);
-              if (cross)
+              int intersection = typeOfIntersection(j, i);
+              if (intersection)
                 {
-                  updateCell(cell, cross);
-                  countCross++;
+                  updateCell(cell, intersection);
+                  countOfIntersection++;
                 }
 
               wordLength++;
@@ -911,19 +911,19 @@ void tableTemplateWidget::scanVertical(void)
             {
               reswl = wordLength;
               wordLength = 0;
-              saveResult(resrow, rescol, reswl, vertical, countCross);
-              countCross = 0;
+              saveResult(resrow, rescol, reswl, vertical, countOfIntersection);
+              countOfIntersection = 0;
             }
         }
 
       reswl = wordLength;
-      saveResult(resrow, rescol, reswl, vertical, countCross);
+      saveResult(resrow, rescol, reswl, vertical, countOfIntersection);
     }
 }
 
-int tableTemplateWidget::isCrosses(int row, int col)
+int tableTemplateWidget::typeOfIntersection(int row, int col)
 {
-  int typeCross = 0;
+  int toi = 0;
   QTableWidgetItem *cell = NULL;
 
   for (int i = 0; i < 4; i++)
@@ -933,15 +933,15 @@ int tableTemplateWidget::isCrosses(int row, int col)
       if (cell)
         {
           if (cell->data(Qt::UserRole).toInt())
-            typeCross = typeCross + int(pow(2, 4-(i+1)));
+            toi = toi + int(pow(2, 4-(i+1)));
         }
     }
 
-  if (typeCross)
+  if (toi)
     {
       for (int i = 0; i < 9; i++)
-        if (Crosses[i] == typeCross)
-          return typeCross;
+        if (intersections[i] == toi)
+          return toi;
     }
 
   return 0;
@@ -952,7 +952,8 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
 {
   wordInfo *word;
   crossInfo *cross;
-  int crossIndex = 0, crossType = 0;
+  //int crossIndex = 0;
+  int crossType = 0;
 
   if (length >= 3)
     {
@@ -968,17 +969,17 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
         {
           for (int i = 0; i < length; i++)
             {
-              crossType = isCrosses(row, col + i);
+              crossType = typeOfIntersection(row, col + i);
 
               if (crossType)
                 {
-                  crossIndex++;
+                  //crossIndex++;
 
                   cross = new crossInfo();
                   cross->numWord = numWord;
                   cross->row = row;
                   cross->col = col + i;
-                  cross->crossIndex = crossIndex;
+                  //cross->crossIndex = crossIndex;
                   cross->crossPos = i;
                   cross->crossType = crossType;
 
@@ -990,17 +991,17 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
         {
           for (int i = 0; i < length; i++)
             {
-              crossType = isCrosses(row + i, col);
+              crossType = typeOfIntersection(row + i, col);
 
               if (crossType)
                 {
-                  crossIndex++;
+                  //crossIndex++;
 
                   cross = new crossInfo();
                   cross->numWord = numWord;
                   cross->row = row + i;
                   cross->col = col;
-                  cross->crossIndex = crossIndex;
+                  //cross->crossIndex = crossIndex;
                   cross->crossPos = i;
                   cross->crossType = crossType;
 

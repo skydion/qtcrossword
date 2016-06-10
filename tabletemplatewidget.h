@@ -60,7 +60,9 @@ protected:
   enum orientation { horizontal = false, vertical = true };
   int numWord;
   int DRC[4][2];
-  int Crosses[9];
+
+  // типи перетинів
+  int intersections[9];
 
   QList<wordInfo*> wi;
 
@@ -86,7 +88,7 @@ protected:
   void scanHorizontal(void);
   void scanVertical(void);
   void saveResult(int row, int col,  int lenght, int orient, int crossCount);
-  int isCrosses(int row, int col);
+  int typeOfIntersection(int row, int col);
   int findCrossedWord(int row, int col, int nw);
   void displayCrossword(void);
   void savePrivateData(void);
