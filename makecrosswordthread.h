@@ -58,6 +58,8 @@ private:
   QStack<int> workStack;
 
   int vocabularyId;
+
+  // кількість слів в словнику по якому складаємо кросворд
   int count;
   QList<wordData*> wd;
 };

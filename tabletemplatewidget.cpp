@@ -5,8 +5,11 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
 {
   templateId = 0;
   numRow = numCol = 0;
+  countWords = 0;
+
   isDirty = false;
   isMaked = false;
+
   sizeOfTemplate = NULL;
 
   DRC[0][0] = -1;
@@ -223,6 +226,9 @@ void tableTemplateWidget::insRow(void)
   isDirty = true;
 }
 
+/*
+ * Завантажуємо шаблон кросворду з БД
+ */
 void tableTemplateWidget::loadFromDB()
 {
   if (templateId == 0)
@@ -231,11 +237,11 @@ void tableTemplateWidget::loadFromDB()
   isMaked = false;
 
   int countRecord = -1;
-  int rowNo, colNo, valNo;
+  int rowNo, colNo, valNo, countWordNo;
   int row, col, val;
   QSqlQuery query;
 
-  query.prepare("SELECT _rows, _columns FROM crossword.templates WHERE _id = ?;");
+  query.prepare("SELECT _rows, _columns, _count_words FROM crossword.templates WHERE _id = ?;");
   query.addBindValue(QVariant(templateId));
   query.exec();
 
@@ -253,14 +259,17 @@ void tableTemplateWidget::loadFromDB()
 
           rowNo = query.record().indexOf("_rows");
           colNo = query.record().indexOf("_columns");
+          countWordNo = query.record().indexOf("_count_words");
 
           numRow = query.value(rowNo).toInt();
           numCol = query.value(colNo).toInt();
+          countWords = query.value(countWordNo).toInt();
 
           setRowCount(numRow);
           setColumnCount(numCol);
         }
       query.finish();
+      qDebug() << "loadFromDB: [" << numRow << "  " << numCol << "  " << countWords << "]";
     }
   else
     qDebug() << "loadFromDB: " << le.text();
@@ -300,6 +309,9 @@ void tableTemplateWidget::loadFromDB()
   loadPrivateData();
 }
 
+/*
+ * Завантажуємо приватні дані по шаблону решітки для подальшого пошуку слів
+ */
 void tableTemplateWidget::loadPrivateData(void)
 {
   wi.clear();
@@ -405,6 +417,10 @@ void tableTemplateWidget::loadPrivateData(void)
     qDebug() << "loadPrivateData: " << le.text();
 }
 
+
+/*
+ * Зберігаємо шаблон кросворду після редагування решітки
+ */
 void tableTemplateWidget::saveToDB()
 {
   scanTemplate();
@@ -495,10 +511,14 @@ void tableTemplateWidget::saveToDB()
   blob.close();
 
   query.prepare("UPDATE crossword.templates SET _rows = ?, _columns = ?, "
-                "_preview = ? WHERE _id = ?;");
+                "_preview = ?, _count_words = ? WHERE _id = ?;");
   query.addBindValue(QVariant(numRow));
   query.addBindValue(QVariant(numCol));
   query.addBindValue(QVariant(blob.data()));
+
+  countWords = wi.count();
+  qDebug() << "saveToDB: countWords = " << countWords;
+  query.addBindValue(QVariant(countWords));
   query.addBindValue(QVariant(templateId));
   query.exec();
 
@@ -609,6 +629,9 @@ void tableTemplateWidget::savePrivateData(void)
   drv->commitTransaction();
 }
 
+/*
+ * Створюємо новий пустий шаблон кросворду
+ */
 void tableTemplateWidget::createNew(void)
 {
   QDialog *dialog = new QDialog();
@@ -757,6 +780,9 @@ void tableTemplateWidget::updateCell(QTableWidgetItem *cell, int value)
     cell->setBackgroundColor(emptyCell);
 }
 
+/*
+ * Шукаємо слова в шаблоні та перетини між ними
+ */
 void tableTemplateWidget::scanTemplate(void)
 {
   if (numRow == 0 && numCol == 0 && templateId != 0)
@@ -786,6 +812,7 @@ void tableTemplateWidget::scanTemplate(void)
           cross = wi[i]->cil[j];
 
           nw2 = findCrossedWord(cross->row, cross->col, nw);
+
           if (nw2 >= 0)
             cross->numWord2 = nw2;
           else
@@ -794,6 +821,9 @@ void tableTemplateWidget::scanTemplate(void)
     }
 }
 
+/*
+ * Шукаємо горизонтальні слова
+ */
 void tableTemplateWidget::scanHorizontal(void)
 {
   int wordLength, countCross;
@@ -841,6 +871,9 @@ void tableTemplateWidget::scanHorizontal(void)
     }
 }
 
+/*
+ * Шукаємо вертикальні слова
+ */
 void tableTemplateWidget::scanVertical(void)
 {
   int wordLength, countCross;

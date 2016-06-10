@@ -15,9 +15,12 @@ void makeCrosswordThread::run(void)
   if (vocabularyId == 0)
     return;
 
+  // перше слово в шаблоні
   int curWord = 0;
 
+  //
   // Знаходимо перше слово якщо стек пустий. А що коли не пустий? Чому виходимо?
+  //
   if ( findWord(curWord) && workStack.isEmpty())
     workStack.push(curWord);
   else
@@ -27,6 +30,9 @@ void makeCrosswordThread::run(void)
       return;
     }
 
+  /* зробити ще одну змінну яка буде враховувати кількість знайдених слів і якщо вона не пуста
+   * треба шукати слова з незаповненими перетинами і для них шукати відповідні до шаблону слова
+   */
   while ( !workStack.isEmpty() )
     {
       int curCross = 0;

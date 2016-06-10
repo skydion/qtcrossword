@@ -16,22 +16,30 @@ drop table if exists templates;
 drop table if exists words;
 drop table if exists questions;
 
+#
 # таблиця з шаблонами решіток
+#
 create table templates
 (
   _id int unsigned not null auto_increment primary key,
+
   # кількість рядків в шаблоні
   _rows int not null,
 
   # кількість совпців в шаблоні
   _columns int not null,
 
+  # кількість слів в шаблоні
+  _count_words int not null,
+
   # картинка для попереднього перегляду існуючих решіток шаблонів
   _preview mediumblob
 ) engine=innodb;
 
 
+#
 # таблиця з даними для шаблону решітки
+#
 create table grids
 (
   _id int unsigned not null auto_increment primary key,
@@ -54,7 +62,9 @@ create table grids
 ) engine=innodb;
 
 
-# таблиця зі словами
+#
+# таблиця зі словами які знайдено в результаті розвязку кросворду
+#
 create table words
 (
   _id int unsigned not null auto_increment primary key,
@@ -68,7 +78,9 @@ create table words
 ) engine=innodb;
 
 
+#
 # таблиця із запитаннями до слів
+#
 create table questions
 (
   _id int unsigned not null auto_increment primary key,
@@ -79,7 +91,9 @@ create table questions
 ) engine=innodb;
 
 
+#
 # таблиця з даними про кросворд, отримана шляхом сканування шаблону решітки
+#
 create table private_data
 (
   _id int unsigned not null auto_increment primary key,
@@ -105,16 +119,16 @@ create table private_data
   #  on delete no action
   #  on update no action,
 
-  # номер слова
+  # порядковий номер слова в кросворді
   _numword int unsigned not null,
 
   # прапорець заповнення шаблону в словi (1-так, 0-нi)
   #_filled boolean not null,
 
-  # рядок слова в кросвордi
+  # початковий рядок слова в кросвордi
   _row int unsigned not null,
 
-  # стовпець слова в кросвордi
+  # початковий стовпець слова в кросвордi
   _column int unsigned not null,
 
   # довжина слова
@@ -129,7 +143,9 @@ create table private_data
 ) engine=innodb;
 
 
-# таблиця про перетини слова
+#
+# таблиця про перетини слова з іншими словами в кросворді
+#
 create table crosses
 (
   _id int unsigned not null auto_increment primary key,
@@ -156,7 +172,9 @@ create table crosses
 ) engine=innodb;
 
 
+#
 # таблиця про використання кросвордів в пресі, інтернеті
+#
 create table uses
 (
   _id int unsigned not null auto_increment primary key,

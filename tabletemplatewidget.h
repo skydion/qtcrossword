@@ -45,8 +45,15 @@ protected:
   QList<QTableWidgetSelectionRange> selectionRange;
 
   bool symetricalMode;
+
   int templateId;
+
+  // кількість рядків та стовпців в шаблоні
   int numRow, numCol;
+
+  // кількість слів в шаблоні
+  int countWords;
+
   bool isDirty;
   bool isMaked;
 
