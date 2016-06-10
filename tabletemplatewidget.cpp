@@ -5,6 +5,7 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
 {
   templateId = 0;
   numRow = numCol = 0;
+
   countWords = 0;
 
   isDirty = false;
@@ -265,7 +266,6 @@ void tableTemplateWidget::loadFromDB()
           setColumnCount(numCol);
         }
       query.finish();
-      qDebug() << "loadFromDB: [" << numRow << "  " << numCol << "  " << countWords << "]";
     }
   else
     qDebug() << "loadFromDB: " << le.text();
@@ -419,9 +419,6 @@ void tableTemplateWidget::loadPrivateData(void)
  */
 void tableTemplateWidget::saveToDB()
 {
-  scanTemplate();
-  savePrivateData();
-
   int previewSizeCell = 20, val;
   int W = numCol*previewSizeCell;
   int H = numRow*previewSizeCell;
@@ -454,36 +451,36 @@ void tableTemplateWidget::saveToDB()
   QVariantList tmp, row, col, value;
 
   pngPainter->begin(image);
-  int i, j;
-  for (i = 0; i < numRow; i++)
-    {
-      t = src.top() + i * previewSizeCell;
-      for (j = 0; j < numCol; j++)
-        {
-          l = src.left() + j * previewSizeCell;
+    int i, j;
+    for (i = 0; i < numRow; i++)
+      {
+        t = src.top() + i * previewSizeCell;
+        for (j = 0; j < numCol; j++)
+          {
+            l = src.left() + j * previewSizeCell;
 
-          r.setTop(t);
-          r.setLeft(l);
+            r.setTop(t);
+            r.setLeft(l);
 
-          r.setRight(src.left() + l + previewSizeCell);
-          r.setBottom(src.top() + t + previewSizeCell);
+            r.setRight(src.left() + l + previewSizeCell);
+            r.setBottom(src.top() + t + previewSizeCell);
 
-          cell = this->item(i, j);
-          val = cell->data(Qt::UserRole).toInt();
+            cell = this->item(i, j);
+            val = cell->data(Qt::UserRole).toInt();
 
-          if (val)
-            pngPainter->fillRect(r, fullCell);
-          else
-            pngPainter->fillRect(r, emptyCell);
+            if (val)
+              pngPainter->fillRect(r, fullCell);
+            else
+              pngPainter->fillRect(r, emptyCell);
 
-          tmp << templateId;
-          row << i;
-          col << j;
-          value << val;
-        }
+            tmp << templateId;
+            row << i;
+            col << j;
+            value << val;
+          }
 
-      pb->setValue(i*numRow+j*numCol);
-    }
+        pb->setValue(i*numRow+j*numCol);
+      }
   pngPainter->end();
 
   query.addBindValue(tmp);
@@ -493,7 +490,7 @@ void tableTemplateWidget::saveToDB()
 
   QSqlDriver *drv = db->driver();
   drv->beginTransaction();
-  query.execBatch(QSqlQuery::ValuesAsRows);
+    query.execBatch(QSqlQuery::ValuesAsRows);
   drv->commitTransaction();
 
   le = query.lastError();
@@ -503,16 +500,22 @@ void tableTemplateWidget::saveToDB()
   QByteArray ba;
   QBuffer blob(&ba);
   blob.open(QIODevice::ReadWrite | QIODevice::Unbuffered);
-  image->save(&blob, "PNG");
+    image->save(&blob, "PNG");
   blob.close();
+
+  /*
+   * ====== Run before update DB ======
+   */
+  scanTemplate();
+  savePrivateData();
 
   query.prepare("UPDATE crossword.templates SET _rows = ?, _columns = ?, "
                 "_preview = ?, _count_words = ? WHERE _id = ?;");
-  query.addBindValue(QVariant(numRow));
-  query.addBindValue(QVariant(numCol));
-  query.addBindValue(QVariant(blob.data()));
-  query.addBindValue(QVariant(wi.count()));
-  query.addBindValue(QVariant(templateId));
+    query.addBindValue(QVariant(numRow));
+    query.addBindValue(QVariant(numCol));
+    query.addBindValue(QVariant(blob.data()));
+    query.addBindValue(QVariant(wi.count()));
+    query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -683,7 +686,7 @@ void tableTemplateWidget::deleteTemplate(void)
   QSqlError le;
 
   query.prepare("DELETE FROM crossword.private_data WHERE _template = ?;");
-  query.addBindValue(QVariant(templateId));
+    query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -691,7 +694,7 @@ void tableTemplateWidget::deleteTemplate(void)
     qDebug() << "1. deleteTemplate: " << le.text();
 
   query.prepare("DELETE FROM crossword.grids WHERE _template = ?;");
-  query.addBindValue(QVariant(templateId));
+    query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -699,7 +702,7 @@ void tableTemplateWidget::deleteTemplate(void)
     qDebug() << "2. deleteTemplate: " << le.text();
 
   query.prepare("DELETE FROM crossword.templates WHERE _id = ?;");
-  query.addBindValue(QVariant(templateId));
+    query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -718,6 +721,7 @@ void tableTemplateWidget::deleteTemplate(void)
 
   numCol = numRow = 0;
   templateId = 0;
+  countWords = 0;
   wi.clear();
 }
 
@@ -784,6 +788,8 @@ void tableTemplateWidget::scanTemplate(void)
     }
 
   wi.clear();
+
+  //стартуємо сканування з першого слова
   numWord = 0;
 
   scanHorizontal();
@@ -1002,13 +1008,17 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
         }
 
       wi.append(word);
+
+      // збільшуємо після кожного знайденого слова
       numWord++;
     }
 }
 
 int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
 {
-  int row2 = 0, col2 = 0, cc2 = 0, nw2 = 0;
+  int row2 = -1;
+  int col2 = -1;
+  int nw2 = -1;
 
   for (int i = 0; i < wi.count(); i++)
     {
@@ -1016,19 +1026,18 @@ int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
 
       if (numWord != nw2)
         {
-          cc2 = wi[i]->crossCount;
-
-          for (int j = 0; j < cc2; j++)
+          for (int j = 0; j < wi[i]->crossCount; j++)
             {
               row2 = wi[i]->cil[j]->row;
               col2 = wi[i]->cil[j]->col;
 
               if (row == row2 && col == col2)
-                return nw2;
+                return nw2; // повертаємо порядковий номер слова з яким знайдено перетин
             }
         }
     }
 
+  // перетин не знайдено
   return -1;
 }
 

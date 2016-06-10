@@ -54,11 +54,16 @@ protected:
   // кількість слів в шаблоні
   int countWords;
 
+  /* актуальний порядковий номер слова,
+   * використовується при скануванні решітки
+   */
+  int numWord;
+
   bool isDirty;
   bool isMaked;
 
   enum orientation { horizontal = false, vertical = true };
-  int numWord;
+
   int DRC[4][2];
 
   // типи перетинів
