@@ -19,7 +19,7 @@ void makeCrosswordThread::run(void)
   int curWord = 0;
 
   // кільки слів ми знайшли
-  int foundedWords = 0;
+  //int foundedWords = 0;
 
   //
   // Знаходимо перше слово якщо стек пустий. А що коли не пустий? Чому виходимо?
@@ -27,7 +27,7 @@ void makeCrosswordThread::run(void)
   if ( findWord(curWord) && workStack.isEmpty())
     {
       workStack.push(curWord);
-      foundedWords++;
+      //foundedWords++;
     }
   else
     {
@@ -54,7 +54,7 @@ void makeCrosswordThread::run(void)
                     {
                       workStack.push(crossedWord);
                       curCross = 0;
-                      foundedWords++;
+                      //foundedWords++;
                       curWord = crossedWord;
                       break;
                     }
@@ -71,7 +71,7 @@ void makeCrosswordThread::run(void)
                       else
                         {
                           crossedWord = workStack.pop();
-                          foundedWords--;
+                          //foundedWords--;
                         }
                     }
                 }
@@ -82,7 +82,7 @@ void makeCrosswordThread::run(void)
               if ( wi[curWord]->crossCount == 1 )
                 workStack.push(crossedWord);
 
-              foundedWords++;
+              //foundedWords++;
               curCross++;
             }
         }
@@ -101,7 +101,7 @@ void makeCrosswordThread::run(void)
       else
         {
           curWord = workStack.pop();
-          foundedWords--;
+          //foundedWords--;
         }
     }
 }
