@@ -98,6 +98,7 @@ protected:
   void saveResult(int row, int col,  int lenght, int orient, int crossCount);
   int typeOfIntersection(int row, int col);
   int findCrossedWord(int row, int col, int nw);
+  int findWordByRC(int row, int col);
   void displayCrossword(void);
   void savePrivateData(void);
   void loadPrivateData(void);

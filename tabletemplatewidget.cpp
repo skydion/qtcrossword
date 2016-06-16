@@ -449,9 +449,10 @@ void tableTemplateWidget::saveToDB()
   sb->addWidget(pb);
 
   QVariantList tmp, row, col, value;
+  QString text;
 
   pngPainter->begin(image);
-    int i, j;
+    int i, j, nw;
     for (i = 0; i < numRow; i++)
       {
         t = src.top() + i * previewSizeCell;
@@ -473,13 +474,24 @@ void tableTemplateWidget::saveToDB()
             else
               pngPainter->fillRect(r, emptyCell);
 
+            // прямокутник для ячейки
+            pngPainter->drawRect(r);
+
+            // виводимо номер слова
+            nw = findWordByRC(i, j) + 1;
+            if ( nw >= 1 )
+              {
+                text = QVariant(nw).toString();
+                pngPainter->drawText(r, Qt::AlignLeft | Qt::AlignTop, text);
+              }
+
             tmp << templateId;
             row << i;
             col << j;
             value << val;
           }
 
-        pb->setValue(i*numRow+j*numCol);
+        pb->setValue(i*numRow + j*numCol);
       }
   pngPainter->end();
 
@@ -1040,6 +1052,29 @@ int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
   // перетин не знайдено
   return -1;
 }
+
+
+/*
+ * Пошук слова по номеру рядка і стовпчика.
+ * Може з часом замінити все на QMap і тоді подібні функції викинути
+ */
+int tableTemplateWidget::findWordByRC(int row, int col)
+{
+  int row2 = -1;
+  int col2 = -1;
+
+  for (int i = 0; i < wi.count(); i++)
+    {
+      row2 = wi[i]->row;
+      col2 = wi[i]->col;
+
+      if (row == row2 && col == col2)
+        return wi[i]->numWord;
+    }
+
+  return -1;
+}
+
 
 void tableTemplateWidget::makeCrossword(void)
 {
