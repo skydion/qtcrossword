@@ -269,8 +269,7 @@ void MainWindow::makedCrossword(void)
   actionMake->setDisabled(false);
   actionMake->setChecked(false);
 
-  QTextDocument *d = grid->getDocument();
-  ui->textBrowser->setDocument(d);
+  ui->textBrowser->setDocument(grid->getQuestionsDocument());
 }
 
 void MainWindow::printCrossword(void)

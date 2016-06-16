@@ -79,7 +79,7 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
   to.setWrapMode(QTextOption::WordWrap);
   to.setAlignment(Qt::AlignJustify);
 
-  doc.setDefaultTextOption(to);
+  printDoc.setDefaultTextOption(to);
   //doc.setDefaultFont(font);
 }
 
@@ -1112,8 +1112,8 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
   if (templateId == 0 && !isMaked)
     return;
 
-  doc.clear();
-  QTextCursor cursor(&doc);
+  printDoc.clear();
+  QTextCursor cursor(&printDoc);
 
   int pageW = prn->pageRect().width();
   int pageH = prn->pageRect().height();
@@ -1226,17 +1226,17 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
 
     font.setPointSize(8);
     font.setBold(false);
-    doc.setDefaultFont(font);
+    printDoc.setDefaultFont(font);
 
     QRectF clip(0, 0, w, h);
-    doc.setTextWidth(w);
+    printDoc.setTextWidth(w);
     cursor.insertHtml(questionsV);
     cursor.insertHtml(questionsH);
 
     painter.save();
     painter.translate(x, y);
     painter.setFont(font);
-    doc.drawContents(&painter, clip);
+    printDoc.drawContents(&painter, clip);
     painter.restore();
   }
   painter.end();
@@ -1246,6 +1246,8 @@ void tableTemplateWidget::makeFinished(void)
 {
   displayCrossword();
   isMaked = true;
+
+  prepareQuestions();
 
   emit maked();
 }
@@ -1335,48 +1337,9 @@ void tableTemplateWidget::prepareQuestions(void)
 
   questionMap.clear();
   questionsH += "</body></html>";
-}
 
-// start test code
-//	QMap<QString, QString> htmlTemplate;
-//
-//	htmlTemplate["#code1#"] = "TEST HTML CODE1";
-//	htmlTemplate["#code2#"] = "TEST HTML CODE2";
-//	htmlTemplate["#code3#"] = "TEST HTML CODE3";
-//	htmlTemplate["#code4#"] = "TEST HTML CODE4";
-//	htmlTemplate["#code5#"] = "TEST HTML CODE5";
-//
-//	QString html = "<html><body>"
-//		       "<h1>#code1#</h1><br>"
-//		       "<b>#code2#</b> <i>#code3#</i><br>"
-//		       "<h3>#code4#</h3><br>"
-//		       "<p>#code5#</p>"
-//		       "</body></html>";
-//
-//	QString resHtml;
-//
-//	resHtml = html.replace("#code1#", htmlTemplate.value("#code1#"), Qt::CaseInsensitive);
-//	resHtml = resHtml.replace("#code2#", htmlTemplate.value("#code2#"), Qt::CaseInsensitive);
-//	resHtml = resHtml.replace("#code3#", htmlTemplate.value("#code3#"), Qt::CaseInsensitive);
-//	resHtml = resHtml.replace("#code4#", htmlTemplate.value("#code4#"), Qt::CaseInsensitive);
-//	resHtml = resHtml.replace("#code5#", htmlTemplate.value("#code5#"), Qt::CaseInsensitive);
-//
-//	doc.setHtml(resHtml);
-//
-//	prn->newPage();
-//	painter.save();
-//	painter.drawRect(questionsRect);
-//	painter.translate(x, y);
-//	doc.drawContents(&painter, clip);
-//	painter.restore();
-//
-//	prn->newPage();
-//	painter.save();
-//	painter.drawRect(questionsRect);
-//	painter.translate(x, y);
-//	doc.drawContents(&painter/*, clip*/);
-//	painter.restore();
-// end test code
+  questionsDoc.setHtml(questionsV + questionsH);
+}
 
 void tableTemplateWidget::setStatusBar(QStatusBar *qsb)
 {

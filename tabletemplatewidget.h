@@ -37,7 +37,9 @@ public:
   void setStatusBar(QStatusBar *qsb);
   bool checkDirty(void) { return isDirty; }
   void setDB(QSqlDatabase *sqlDB) { db = sqlDB; }
-  QTextDocument* getDocument(void) { return &doc; }
+
+  QTextDocument* getPrintDocument(void) { return &printDoc; }
+  QTextDocument* getQuestionsDocument(void) { return &questionsDoc; }
 
 protected:
   QMenu *menu;
@@ -80,7 +82,8 @@ protected:
 
   Ui::SizeOfTemplate *sizeOfTemplate;
   makeCrosswordThread *mct;
-  QTextDocument doc;
+
+  QTextDocument printDoc, questionsDoc;
 
   QString questionsH, questionsV;
 
