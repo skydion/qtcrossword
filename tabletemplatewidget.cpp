@@ -57,13 +57,13 @@ tableTemplateWidget::tableTemplateWidget(QWidget *parent) :
   menu = new QMenu(this);
 
   if (menu)
-    {
-      menu->addAction(actionRmColumn);
-      menu->addAction(actionInsColumn);
-      menu->addSeparator();
-      menu->addAction(actionRmRow);
-      menu->addAction(actionInsRow);
-    }
+  {
+    menu->addAction(actionRmColumn);
+    menu->addAction(actionInsColumn);
+    menu->addSeparator();
+    menu->addAction(actionRmRow);
+    menu->addAction(actionInsRow);
+  }
 
   setEditTriggers(QAbstractItemView::NoEditTriggers);
   setSelectionMode(QAbstractItemView::ContiguousSelection);
@@ -101,12 +101,12 @@ tableTemplateWidget::~tableTemplateWidget()
     delete actionInsRow;
 
   if (mct)
-    {
-      mct->stopScanning();
+  {
+    mct->stopScanning();
 
-      if (mct->wait())
-        delete mct;
-    }
+    if (mct->wait())
+      delete mct;
+  }
 }
 
 void tableTemplateWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -114,16 +114,16 @@ void tableTemplateWidget::contextMenuEvent(QContextMenuEvent *e)
   QList<QTableWidgetSelectionRange> listRanges = selectedRanges();
 
   if (listRanges[0].columnCount() == 1)
-    {
-      actionRmRow->setDisabled(true);
-      actionInsRow->setDisabled(true);
-    }
+  {
+    actionRmRow->setDisabled(true);
+    actionInsRow->setDisabled(true);
+  }
 
   if (listRanges[0].rowCount() == 1)
-    {
-      actionRmColumn->setDisabled(true);
-      actionInsColumn->setDisabled(true);
-    }
+  {
+    actionRmColumn->setDisabled(true);
+    actionInsColumn->setDisabled(true);
+  }
 
   menu->exec(e->globalPos());
 
@@ -140,13 +140,13 @@ void tableTemplateWidget::rmColumn(void)
   selectionRange = selectedRanges();
 
   for (int i = 0; i < selectionRange.count(); i++)
-    {
-      lc = selectionRange[i].leftColumn();
-      cc = selectionRange[i].columnCount();
+  {
+    lc = selectionRange[i].leftColumn();
+    cc = selectionRange[i].columnCount();
 
-      for (int j = 0; j < cc; j++)
-        removeColumn(lc);
-    }
+    for (int j = 0; j < cc; j++)
+      removeColumn(lc);
+  }
 
   numCol = columnCount();
   isDirty = true;
@@ -159,13 +159,13 @@ void tableTemplateWidget::rmRow(void)
   selectionRange = selectedRanges();
 
   for (int i = 0; i < selectionRange.count(); i++)
-    {
-      tr = selectionRange[i].topRow();
-      rc = selectionRange[i].rowCount();
+  {
+    tr = selectionRange[i].topRow();
+    rc = selectionRange[i].rowCount();
 
-      for (int j = 0; j < rc; j++)
-        removeRow(tr);
-    }
+    for (int j = 0; j < rc; j++)
+      removeRow(tr);
+  }
 
   numRow = rowCount();
   isDirty = true;
@@ -179,19 +179,19 @@ void tableTemplateWidget::insColumn(void)
   selectionRange = selectedRanges();
 
   for (i = 0; i < selectionRange.count(); i++)
-    {
-      lc = selectionRange[i].leftColumn();
-      cc = selectionRange[i].columnCount();
+  {
+    lc = selectionRange[i].leftColumn();
+    cc = selectionRange[i].columnCount();
 
-      for (j = 0; j < cc; j++)
-        insertColumn(lc);
-    }
+    for (j = 0; j < cc; j++)
+      insertColumn(lc);
+  }
 
   for (i = 0; i < numRow; i++)
-    {
-      for (j = 0; j < cc; j++)
-        newCell(i, lc+j, 0);
-    }
+  {
+    for (j = 0; j < cc; j++)
+      newCell(i, lc+j, 0);
+  }
 
   numCol = columnCount();
   isDirty = true;
@@ -205,19 +205,19 @@ void tableTemplateWidget::insRow(void)
   selectionRange = selectedRanges();
 
   for (i = 0; i < selectionRange.count(); i++)
-    {
-      tr = selectionRange[i].topRow();
-      rc = selectionRange[i].rowCount();
+  {
+    tr = selectionRange[i].topRow();
+    rc = selectionRange[i].rowCount();
 
-      for (j = 0; j < rc; j++)
-        insertRow(tr);
-    }
+    for (j = 0; j < rc; j++)
+      insertRow(tr);
+  }
 
   for (i = 0; i < rc; i++)
-    {
-      for (j = 0; j < numCol; j++)
-        newCell(tr+i, j, 0);
-    }
+  {
+    for (j = 0; j < numCol; j++)
+      newCell(tr+i, j, 0);
+  }
 
   numRow = rowCount();
   isDirty = true;
@@ -244,29 +244,29 @@ void tableTemplateWidget::loadFromDB()
 
   QSqlError le = query.lastError();
   if (le.type() == QSqlError::NoError)
+  {
+    if (query.isActive() && query.isSelect())
+      countRecord = query.size();
+    else
+      countRecord = -1;
+
+    if (countRecord > 0)
     {
-      if (query.isActive() && query.isSelect())
-        countRecord = query.size();
-      else
-        countRecord = -1;
+      query.first();
 
-      if (countRecord > 0)
-        {
-          query.first();
+      rowNo = query.record().indexOf("_rows");
+      colNo = query.record().indexOf("_columns");
+      countWordsNo = query.record().indexOf("_count_words");
 
-          rowNo = query.record().indexOf("_rows");
-          colNo = query.record().indexOf("_columns");
-          countWordsNo = query.record().indexOf("_count_words");
+      numRow = query.value(rowNo).toInt();
+      numCol = query.value(colNo).toInt();
+      countWords = query.value(countWordsNo).toInt();
 
-          numRow = query.value(rowNo).toInt();
-          numCol = query.value(colNo).toInt();
-          countWords = query.value(countWordsNo).toInt();
-
-          setRowCount(numRow);
-          setColumnCount(numCol);
-        }
-      query.finish();
+      setRowCount(numRow);
+      setColumnCount(numCol);
     }
+    query.finish();
+  }
   else
     qDebug() << "loadFromDB: " << le.text();
 
@@ -276,29 +276,29 @@ void tableTemplateWidget::loadFromDB()
 
   le = query.lastError();
   if (le.type() == QSqlError::NoError)
+  {
+    if (query.isActive() && query.isSelect())
+      countRecord = query.size();
+    else
+      countRecord = -1;
+
+    if (countRecord > 0 && countRecord == numRow*numCol)
     {
-      if (query.isActive() && query.isSelect())
-        countRecord = query.size();
-      else
-        countRecord = -1;
+      rowNo = query.record().indexOf("_row");
+      colNo = query.record().indexOf("_column");
+      valNo = query.record().indexOf("_value");
 
-      if (countRecord > 0 && countRecord == numRow*numCol)
-        {
-          rowNo = query.record().indexOf("_row");
-          colNo = query.record().indexOf("_column");
-          valNo = query.record().indexOf("_value");
+      while (query.next())
+      {
+        row = query.value(rowNo).toInt();
+        col = query.value(colNo).toInt();
+        val = query.value(valNo).toInt();
 
-          while (query.next())
-            {
-              row = query.value(rowNo).toInt();
-              col = query.value(colNo).toInt();
-              val = query.value(valNo).toInt();
-
-              newCell(row, col, val);
-            }
-          query.finish();
-        }
+        newCell(row, col, val);
+      }
+      query.finish();
     }
+  }
   else
     qDebug() << "loadFromDB: " << le.text();
 
@@ -331,84 +331,84 @@ void tableTemplateWidget::loadPrivateData(void)
 
   le = query.lastError();
   if (le.type() == QSqlError::NoError)
+  {
+    if (query.isActive() && query.isSelect())
+      countRecord = query.size();
+    else
+      countRecord = -1;
+
+    if (countRecord > 0)
     {
-      if (query.isActive() && query.isSelect())
-        countRecord = query.size();
-      else
-        countRecord = -1;
+      rec = query.record();
 
-      if (countRecord > 0)
+      idNo = rec.indexOf("_id");
+      numwordNo = rec.indexOf("_numword");
+      rowNo = rec.indexOf("_row");
+      columnNo = rec.indexOf("_column");
+      lenghtNo = rec.indexOf("_lenght");
+      crosscountNo = rec.indexOf("_crosscount");
+      orientationNo = rec.indexOf("_orientation");
+
+      while (query.next())
+      {
+        w = new wordInfo();
+        if (w)
         {
-          rec = query.record();
+          w->numWord = query.value(numwordNo).toInt();
+          w->row = query.value(rowNo).toInt();
+          w->col = query.value(columnNo).toInt();
+          w->length = query.value(lenghtNo).toInt();
+          w->orient = query.value(orientationNo).toBool();
+          w->crossCount = query.value(crosscountNo).toInt();
 
-          idNo = rec.indexOf("_id");
-          numwordNo = rec.indexOf("_numword");
-          rowNo = rec.indexOf("_row");
-          columnNo = rec.indexOf("_column");
-          lenghtNo = rec.indexOf("_lenght");
-          crosscountNo = rec.indexOf("_crosscount");
-          orientationNo = rec.indexOf("_orientation");
+          query2.prepare("SELECT _cpos, _ctype, _numword "
+                         "FROM crossword.crosses WHERE _pd_id = ?;");
+          query2.addBindValue(query.value(idNo));
+          query2.exec();
 
-          while (query.next())
+          le = query2.lastError();
+          if (le.type() == QSqlError::NoError)
+          {
+            if (query2.isActive() && query2.isSelect())
+              countRecord = query2.size();
+            else
+              countRecord = -1;
+
+            if (countRecord > 0)
             {
-              w = new wordInfo();
-              if (w)
+              int cposNo = query2.record().indexOf("_cpos");
+              int ctypeNo = query2.record().indexOf("_ctype");
+              int numword2No = query2.record().indexOf("_numword");
+
+              while (query2.next())
+              {
+                c = new crossInfo();
+
+                if (c)
                 {
-                  w->numWord = query.value(numwordNo).toInt();
-                  w->row = query.value(rowNo).toInt();
-                  w->col = query.value(columnNo).toInt();
-                  w->length = query.value(lenghtNo).toInt();
-                  w->orient = query.value(orientationNo).toBool();
-                  w->crossCount = query.value(crosscountNo).toInt();
+                  c->crossPos = query2.value(cposNo).toInt();
+                  c->crossType = query2.value(ctypeNo).toInt();
+                  c->currentWord = query2.value(numword2No).toInt();
 
-                  query2.prepare("SELECT _cpos, _ctype, _numword "
-                                 "FROM crossword.crosses WHERE _pd_id = ?;");
-                  query2.addBindValue(query.value(idNo));
-                  query2.exec();
-
-                  le = query2.lastError();
-                  if (le.type() == QSqlError::NoError)
-                    {
-                      if (query2.isActive() && query2.isSelect())
-                        countRecord = query2.size();
-                      else
-                        countRecord = -1;
-
-                      if (countRecord > 0)
-                        {
-                          int cposNo = query2.record().indexOf("_cpos");
-                          int ctypeNo = query2.record().indexOf("_ctype");
-                          int numword2No = query2.record().indexOf("_numword");
-
-                          while (query2.next())
-                            {
-                              c = new crossInfo();
-
-                              if (c)
-                                {
-                                  c->crossPos = query2.value(cposNo).toInt();
-                                  c->crossType = query2.value(ctypeNo).toInt();
-                                  c->currentWord = query2.value(numword2No).toInt();
-
-                                  w->cil.append(c);
-                                  c = NULL;
-                                }
-                            }
-                        }
-
-                      query2.finish();
-                    }
-                  else
-                    qDebug() << "loadPrivateData: " << le.text();
-
-                  wi.append(w);
-                  w = NULL;
+                  w->cil.append(c);
+                  c = NULL;
                 }
+              }
             }
-        }
 
-      query.finish();
+            query2.finish();
+          }
+          else
+            qDebug() << "loadPrivateData: " << le.text();
+
+          wi.append(w);
+          w = NULL;
+        }
+      }
     }
+
+    query.finish();
+  }
   else
     qDebug() << "loadPrivateData: " << le.text();
 }
@@ -452,47 +452,47 @@ void tableTemplateWidget::saveToDB()
   QString text;
 
   pngPainter->begin(image);
-    int i, j, wordNumber;
-    for (i = 0; i < numRow; i++)
+  int i, j, wordNumber;
+  for (i = 0; i < numRow; i++)
+  {
+    t = src.top() + i * previewSizeCell;
+    for (j = 0; j < numCol; j++)
+    {
+      l = src.left() + j * previewSizeCell;
+
+      r.setTop(t);
+      r.setLeft(l);
+
+      r.setRight(src.left() + l + previewSizeCell);
+      r.setBottom(src.top() + t + previewSizeCell);
+
+      cell = this->item(i, j);
+      val = cell->data(Qt::UserRole).toInt();
+
+      if (val)
+        pngPainter->fillRect(r, fullCell);
+      else
+        pngPainter->fillRect(r, emptyCell);
+
+      // прямокутник для ячейки
+      pngPainter->drawRect(r);
+
+      // виводимо номер слова
+      wordNumber = findWordByRC(i, j) + 1;
+      if ( wordNumber >= 1 )
       {
-        t = src.top() + i * previewSizeCell;
-        for (j = 0; j < numCol; j++)
-          {
-            l = src.left() + j * previewSizeCell;
-
-            r.setTop(t);
-            r.setLeft(l);
-
-            r.setRight(src.left() + l + previewSizeCell);
-            r.setBottom(src.top() + t + previewSizeCell);
-
-            cell = this->item(i, j);
-            val = cell->data(Qt::UserRole).toInt();
-
-            if (val)
-              pngPainter->fillRect(r, fullCell);
-            else
-              pngPainter->fillRect(r, emptyCell);
-
-            // прямокутник для ячейки
-            pngPainter->drawRect(r);
-
-            // виводимо номер слова
-            wordNumber = findWordByRC(i, j) + 1;
-            if ( wordNumber >= 1 )
-              {
-                text = QVariant(wordNumber).toString();
-                pngPainter->drawText(r, Qt::AlignLeft | Qt::AlignTop, text);
-              }
-
-            tmp << templateId;
-            row << i;
-            col << j;
-            value << val;
-          }
-
-        pb->setValue(i*numRow + j*numCol);
+        text = QVariant(wordNumber).toString();
+        pngPainter->drawText(r, Qt::AlignLeft | Qt::AlignTop, text);
       }
+
+      tmp << templateId;
+      row << i;
+      col << j;
+      value << val;
+    }
+
+    pb->setValue(i*numRow + j*numCol);
+  }
   pngPainter->end();
 
   query.addBindValue(tmp);
@@ -502,7 +502,7 @@ void tableTemplateWidget::saveToDB()
 
   QSqlDriver *drv = db->driver();
   drv->beginTransaction();
-    query.execBatch(QSqlQuery::ValuesAsRows);
+  query.execBatch(QSqlQuery::ValuesAsRows);
   drv->commitTransaction();
 
   le = query.lastError();
@@ -512,7 +512,7 @@ void tableTemplateWidget::saveToDB()
   QByteArray ba;
   QBuffer blob(&ba);
   blob.open(QIODevice::ReadWrite | QIODevice::Unbuffered);
-    image->save(&blob, "PNG");
+  image->save(&blob, "PNG");
   blob.close();
 
   /*
@@ -523,11 +523,11 @@ void tableTemplateWidget::saveToDB()
 
   query.prepare("UPDATE crossword.templates SET _rows = ?, _columns = ?, "
                 "_preview = ?, _count_words = ? WHERE _id = ?;");
-    query.addBindValue(QVariant(numRow));
-    query.addBindValue(QVariant(numCol));
-    query.addBindValue(QVariant(blob.data()));
-    query.addBindValue(QVariant(wi.count()));
-    query.addBindValue(QVariant(templateId));
+  query.addBindValue(QVariant(numRow));
+  query.addBindValue(QVariant(numCol));
+  query.addBindValue(QVariant(blob.data()));
+  query.addBindValue(QVariant(wi.count()));
+  query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -560,15 +560,15 @@ void tableTemplateWidget::savePrivateData(void)
 
   le = query.lastError();
   if (le.type() == QSqlError::NoError)
-    {
-      query.prepare("DELETE FROM crossword.crosses WHERE _template = ?;");
-      query.addBindValue(QVariant(templateId));
-      query.exec();
+  {
+    query.prepare("DELETE FROM crossword.crosses WHERE _template = ?;");
+    query.addBindValue(QVariant(templateId));
+    query.exec();
 
-      le = query.lastError();
-      if (le.type() != QSqlError::NoError)
-        qDebug() << "2. savePrivateData: " << le.text();
-    }
+    le = query.lastError();
+    if (le.type() != QSqlError::NoError)
+      qDebug() << "2. savePrivateData: " << le.text();
+  }
   else
     qDebug() << "1.  savePrivateData: " << le.text();
 
@@ -582,57 +582,57 @@ void tableTemplateWidget::savePrivateData(void)
 
   drv->beginTransaction();
   for (int i = 0; i < wi.count(); i++)
+  {
+    query.prepare("INSERT INTO crossword.private_data (_template, _numword, "
+                  "_row, _column, _lenght, _crosscount, _orientation) "
+                  "VALUES (?, ?, ?, ?, ?, ?, ?);");
+
+    query.addBindValue(QVariant(templateId));
+    query.addBindValue(QVariant(wi[i]->numWord));
+    query.addBindValue(QVariant(wi[i]->row));
+    query.addBindValue(QVariant(wi[i]->col));
+    query.addBindValue(QVariant(wi[i]->length));
+    query.addBindValue(QVariant(wi[i]->crossCount));
+    query.addBindValue(QVariant(wi[i]->orient));
+    query.exec();
+
+    le = query.lastError();
+    if (le.type() == QSqlError::NoError)
     {
-      query.prepare("INSERT INTO crossword.private_data (_template, _numword, "
-                    "_row, _column, _lenght, _crosscount, _orientation) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?);");
+      lastId = query.lastInsertId().toInt();
 
-      query.addBindValue(QVariant(templateId));
-      query.addBindValue(QVariant(wi[i]->numWord));
-      query.addBindValue(QVariant(wi[i]->row));
-      query.addBindValue(QVariant(wi[i]->col));
-      query.addBindValue(QVariant(wi[i]->length));
-      query.addBindValue(QVariant(wi[i]->crossCount));
-      query.addBindValue(QVariant(wi[i]->orient));
-      query.exec();
+      query2.prepare("INSERT INTO crossword.crosses (_template, _pd_id, _cpos, "
+                     "_ctype, _numword) VALUES (?, ?, ?, ?, ?);");
 
-      le = query.lastError();
-      if (le.type() == QSqlError::NoError)
-        {
-          lastId = query.lastInsertId().toInt();
+      cc = wi[i]->crossCount;
+      for (int j = 0; j < cc; j++)
+      {
+        cross = wi[i]->cil[j];
 
-          query2.prepare("INSERT INTO crossword.crosses (_template, _pd_id, _cpos, "
-                         "_ctype, _numword) VALUES (?, ?, ?, ?, ?);");
+        tmp << templateId;
+        pdid << lastId;
+        cpos << cross->crossPos;
+        ctype << cross->crossType;
+        intersectedWord << cross->intersectedWord;
+      }
 
-          cc = wi[i]->crossCount;
-          for (int j = 0; j < cc; j++)
-            {
-              cross = wi[i]->cil[j];
+      query2.addBindValue(tmp);
+      query2.addBindValue(pdid);
+      query2.addBindValue(cpos);
+      query2.addBindValue(ctype);
+      query2.addBindValue(intersectedWord);
 
-              tmp << templateId;
-              pdid << lastId;
-              cpos << cross->crossPos;
-              ctype << cross->crossType;
-              intersectedWord << cross->intersectedWord;
-            }
+      query2.execBatch(QSqlQuery::ValuesAsRows);
 
-          query2.addBindValue(tmp);
-          query2.addBindValue(pdid);
-          query2.addBindValue(cpos);
-          query2.addBindValue(ctype);
-          query2.addBindValue(intersectedWord);
-
-          query2.execBatch(QSqlQuery::ValuesAsRows);
-
-          tmp.clear();
-          pdid.clear();
-          cpos.clear();
-          ctype.clear();
-          intersectedWord.clear();
-        }
-      else
-        qDebug() << "3. savePrivateData: " << le.text();
+      tmp.clear();
+      pdid.clear();
+      cpos.clear();
+      ctype.clear();
+      intersectedWord.clear();
     }
+    else
+      qDebug() << "3. savePrivateData: " << le.text();
+  }
   drv->commitTransaction();
 }
 
@@ -649,32 +649,32 @@ void tableTemplateWidget::createNew(void)
   dialog->exec();
 
   if (dialog->result() == QDialog::Accepted)
-    {
-      numRow = sizeOfTemplate->spinRows->value();
-      numCol = sizeOfTemplate->spinColumns->value();
+  {
+    numRow = sizeOfTemplate->spinRows->value();
+    numCol = sizeOfTemplate->spinColumns->value();
 
-      QSqlQuery query;
-      query.prepare("INSERT INTO crossword.templates (_rows, _columns) VALUES (?, ?);");
-      query.addBindValue(QVariant(numRow));
-      query.addBindValue(QVariant(numCol));
-      query.exec();
+    QSqlQuery query;
+    query.prepare("INSERT INTO crossword.templates (_rows, _columns) VALUES (?, ?);");
+    query.addBindValue(QVariant(numRow));
+    query.addBindValue(QVariant(numCol));
+    query.exec();
 
-      QSqlError le = query.lastError();
-      if (le.type() == QSqlError::NoError)
-        templateId = query.lastInsertId().toInt();
-      else
-        qDebug() << "createNew: " << le.text();
+    QSqlError le = query.lastError();
+    if (le.type() == QSqlError::NoError)
+      templateId = query.lastInsertId().toInt();
+    else
+      qDebug() << "createNew: " << le.text();
 
-      wi.clear();
-      setRowCount(numRow);
-      setColumnCount(numCol);
+    wi.clear();
+    setRowCount(numRow);
+    setColumnCount(numCol);
 
-      for (int i = 0; i < numRow; i++)
-        for (int j = 0; j < numCol; j++)
-          newCell(i, j, 0);
+    for (int i = 0; i < numRow; i++)
+      for (int j = 0; j < numCol; j++)
+        newCell(i, j, 0);
 
-      isDirty = true;
-    }
+    isDirty = true;
+  }
 
   delete dialog;
 }
@@ -698,7 +698,7 @@ void tableTemplateWidget::deleteTemplate(void)
   QSqlError le;
 
   query.prepare("DELETE FROM crossword.private_data WHERE _template = ?;");
-    query.addBindValue(QVariant(templateId));
+  query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -706,7 +706,7 @@ void tableTemplateWidget::deleteTemplate(void)
     qDebug() << "1. deleteTemplate: " << le.text();
 
   query.prepare("DELETE FROM crossword.grids WHERE _template = ?;");
-    query.addBindValue(QVariant(templateId));
+  query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -714,7 +714,7 @@ void tableTemplateWidget::deleteTemplate(void)
     qDebug() << "2. deleteTemplate: " << le.text();
 
   query.prepare("DELETE FROM crossword.templates WHERE _id = ?;");
-    query.addBindValue(QVariant(templateId));
+  query.addBindValue(QVariant(templateId));
   query.exec();
 
   le = query.lastError();
@@ -742,24 +742,24 @@ void tableTemplateWidget::setClickedCell(int row, int col)
   QTableWidgetItem *cell = this->item(row, col);
 
   if (cell)
-    {
-      if ( cell->data(Qt::UserRole).toInt() )
-        updateCell(cell, 0);
-      else
-        updateCell(cell, 1);
-    }
+  {
+    if ( cell->data(Qt::UserRole).toInt() )
+      updateCell(cell, 0);
+    else
+      updateCell(cell, 1);
+  }
 
   if (symetricalMode)
+  {
+    QTableWidgetItem *mirrorCell = this->item(row, numCol-col-1);
+    if (mirrorCell)
     {
-      QTableWidgetItem *mirrorCell = this->item(row, numCol-col-1);
-      if (mirrorCell)
-        {
-          if ( mirrorCell->data(Qt::UserRole).toInt() )
-            updateCell(mirrorCell, 0);
-          else
-            updateCell(mirrorCell, 1);
-        }
+      if ( mirrorCell->data(Qt::UserRole).toInt() )
+        updateCell(mirrorCell, 0);
+      else
+        updateCell(mirrorCell, 1);
     }
+  }
 
   isDirty = true;
 }
@@ -769,13 +769,13 @@ void tableTemplateWidget::newCell(int row, int col, int value)
   QTableWidgetItem *cell = new QTableWidgetItem();
 
   if (cell)
-    {
-      cell->setFont(font);
-      cell->setTextAlignment(Qt::AlignCenter);
-      updateCell(cell, value);
+  {
+    cell->setFont(font);
+    cell->setTextAlignment(Qt::AlignCenter);
+    updateCell(cell, value);
 
-      setItem(row, col, cell);
-    }
+    setItem(row, col, cell);
+  }
 }
 
 void tableTemplateWidget::updateCell(QTableWidgetItem *cell, int value)
@@ -794,10 +794,10 @@ void tableTemplateWidget::updateCell(QTableWidgetItem *cell, int value)
 void tableTemplateWidget::scanTemplate(void)
 {
   if (numRow == 0 && numCol == 0 && templateId != 0)
-    {
-      qDebug() << "scanTemplate: Template doesn't choiced!";
-      return;
-    }
+  {
+    qDebug() << "scanTemplate: Template doesn't choiced!";
+    return;
+  }
 
   wi.clear();
 
@@ -812,22 +812,22 @@ void tableTemplateWidget::scanTemplate(void)
 
   // шукаємо інші слова з якими перетинаємося
   for (int i = 0; i < wi.count(); i++)
+  {
+    crossCount = wi[i]->crossCount;
+    currentWord = wi[i]->numWord;
+
+    for (int j = 0; j < crossCount; j++)
     {
-      crossCount = wi[i]->crossCount;
-      currentWord = wi[i]->numWord;
+      cross = wi[i]->cil[j];
 
-      for (int j = 0; j < crossCount; j++)
-        {
-          cross = wi[i]->cil[j];
+      crossedWord = findCrossedWord(cross->row, cross->col, currentWord);
 
-          crossedWord = findCrossedWord(cross->row, cross->col, currentWord);
-
-          if (crossedWord >= 0)
-            cross->intersectedWord = crossedWord;
-          else
-            qDebug() << "scanTemplate: another word for this crosses doesn't finded!!!";
-        }
+      if (crossedWord >= 0)
+        cross->intersectedWord = crossedWord;
+      else
+        qDebug() << "scanTemplate: another word for this crosses doesn't finded!!!";
     }
+  }
 }
 
 /*
@@ -841,43 +841,43 @@ void tableTemplateWidget::scanHorizontal(void)
   int value = -1;
 
   for (int i = 0; i < numRow; i++)
+  {
+    wordLength = countOfIntersection = 0;
+
+    for (int j = 0; j < numCol; j++)
     {
-      wordLength = countOfIntersection = 0;
+      cell = item(i, j);
+      value = cell->data(Qt::UserRole).toInt();
 
-      for (int j = 0; j < numCol; j++)
+      if (value)
+      {
+        if (wordLength == 0)
         {
-          cell = item(i, j);
-          value = cell->data(Qt::UserRole).toInt();
-
-          if (value)
-            {
-              if (wordLength == 0)
-                {
-                  resrow = i;
-                  rescol = j;
-                }
-
-              int intersection = typeOfIntersection(i, j);
-              if (intersection)
-                {
-                  updateCell(cell, intersection);
-                  countOfIntersection++;
-                }
-
-              wordLength++;
-            }
-          else
-            {
-              reswl = wordLength;
-              wordLength = 0;
-              saveResult(resrow, rescol, reswl, horizontal, countOfIntersection);
-              countOfIntersection = 0;
-            }
+          resrow = i;
+          rescol = j;
         }
 
-      reswl = wordLength;
-      saveResult(resrow, rescol, reswl, horizontal, countOfIntersection);
+        int intersection = typeOfIntersection(i, j);
+        if (intersection)
+        {
+          updateCell(cell, intersection);
+          countOfIntersection++;
+        }
+
+        wordLength++;
+      }
+      else
+      {
+        reswl = wordLength;
+        wordLength = 0;
+        saveResult(resrow, rescol, reswl, horizontal, countOfIntersection);
+        countOfIntersection = 0;
+      }
     }
+
+    reswl = wordLength;
+    saveResult(resrow, rescol, reswl, horizontal, countOfIntersection);
+  }
 }
 
 /*
@@ -891,43 +891,43 @@ void tableTemplateWidget::scanVertical(void)
   int value = -1;
 
   for (int i = 0; i < numCol; i++)
+  {
+    wordLength = countOfIntersection = 0;
+
+    for (int j = 0; j < numRow; j++)
     {
-      wordLength = countOfIntersection = 0;
+      cell = item(j, i);
+      value = cell->data(Qt::UserRole).toInt();
 
-      for (int j = 0; j < numRow; j++)
+      if (value)
+      {
+        if (wordLength == 0)
         {
-          cell = item(j, i);
-          value = cell->data(Qt::UserRole).toInt();
-
-          if (value)
-            {
-              if (wordLength == 0)
-                {
-                  resrow = j;
-                  rescol = i;
-                }
-
-              int intersection = typeOfIntersection(j, i);
-              if (intersection)
-                {
-                  updateCell(cell, intersection);
-                  countOfIntersection++;
-                }
-
-              wordLength++;
-            }
-          else
-            {
-              reswl = wordLength;
-              wordLength = 0;
-              saveResult(resrow, rescol, reswl, vertical, countOfIntersection);
-              countOfIntersection = 0;
-            }
+          resrow = j;
+          rescol = i;
         }
 
-      reswl = wordLength;
-      saveResult(resrow, rescol, reswl, vertical, countOfIntersection);
+        int intersection = typeOfIntersection(j, i);
+        if (intersection)
+        {
+          updateCell(cell, intersection);
+          countOfIntersection++;
+        }
+
+        wordLength++;
+      }
+      else
+      {
+        reswl = wordLength;
+        wordLength = 0;
+        saveResult(resrow, rescol, reswl, vertical, countOfIntersection);
+        countOfIntersection = 0;
+      }
     }
+
+    reswl = wordLength;
+    saveResult(resrow, rescol, reswl, vertical, countOfIntersection);
+  }
 }
 
 int tableTemplateWidget::typeOfIntersection(int row, int col)
@@ -936,22 +936,22 @@ int tableTemplateWidget::typeOfIntersection(int row, int col)
   QTableWidgetItem *cell = NULL;
 
   for (int i = 0; i < 4; i++)
-    {
-      cell = item(row + DRC[i][0], col + DRC[i][1]);
+  {
+    cell = item(row + DRC[i][0], col + DRC[i][1]);
 
-      if (cell)
-        {
-          if (cell->data(Qt::UserRole).toInt())
-            toi = toi + int(pow(2, 4-(i+1)));
-        }
+    if (cell)
+    {
+      if (cell->data(Qt::UserRole).toInt())
+        toi = toi + int(pow(2, 4-(i+1)));
     }
+  }
 
   if (toi)
-    {
-      for (int i = 0; i < 9; i++)
-        if (intersections[i] == toi)
-          return toi;
-    }
+  {
+    for (int i = 0; i < 9; i++)
+      if (intersections[i] == toi)
+        return toi;
+  }
 
   return 0;
 }
@@ -964,59 +964,59 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
   int crossType = 0;
 
   if (length >= 3)
+  {
+    word = new wordInfo();
+    word->numWord = numWord;
+    word->row = row;
+    word->col = col;
+    word->length = length;
+    word->orient = orient;
+    word->crossCount = crossCount;
+
+    if (orient == horizontal)
     {
-      word = new wordInfo();
-      word->numWord = numWord;
-      word->row = row;
-      word->col = col;
-      word->length = length;
-      word->orient = orient;
-      word->crossCount = crossCount;
+      for (int i = 0; i < length; i++)
+      {
+        crossType = typeOfIntersection(row, col + i);
 
-      if (orient == horizontal)
+        if (crossType)
         {
-          for (int i = 0; i < length; i++)
-            {
-              crossType = typeOfIntersection(row, col + i);
+          cross = new crossInfo();
+          cross->currentWord = numWord;
+          cross->row = row;
+          cross->col = col + i;
+          cross->crossPos = i;
+          cross->crossType = crossType;
 
-              if (crossType)
-                {
-                  cross = new crossInfo();
-                  cross->currentWord = numWord;
-                  cross->row = row;
-                  cross->col = col + i;
-                  cross->crossPos = i;
-                  cross->crossType = crossType;
-
-                  word->cil.append(cross);
-                }
-            }
+          word->cil.append(cross);
         }
-      else
-        {
-          for (int i = 0; i < length; i++)
-            {
-              crossType = typeOfIntersection(row + i, col);
-
-              if (crossType)
-                {
-                  cross = new crossInfo();
-                  cross->currentWord = numWord;
-                  cross->row = row + i;
-                  cross->col = col;
-                  cross->crossPos = i;
-                  cross->crossType = crossType;
-
-                  word->cil.append(cross);
-                }
-            }
-        }
-
-      wi.append(word);
-
-      // збільшуємо після кожного знайденого слова
-      numWord++;
+      }
     }
+    else
+    {
+      for (int i = 0; i < length; i++)
+      {
+        crossType = typeOfIntersection(row + i, col);
+
+        if (crossType)
+        {
+          cross = new crossInfo();
+          cross->currentWord = numWord;
+          cross->row = row + i;
+          cross->col = col;
+          cross->crossPos = i;
+          cross->crossType = crossType;
+
+          word->cil.append(cross);
+        }
+      }
+    }
+
+    wi.append(word);
+
+    // збільшуємо після кожного знайденого слова
+    numWord++;
+  }
 }
 
 int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
@@ -1026,21 +1026,21 @@ int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
   int crossedWord = -1;
 
   for (int i = 0; i < wi.count(); i++)
+  {
+    crossedWord = wi[i]->numWord;
+
+    if (numWord != crossedWord)
     {
-      crossedWord = wi[i]->numWord;
+      for (int j = 0; j < wi[i]->crossCount; j++)
+      {
+        row2 = wi[i]->cil[j]->row;
+        col2 = wi[i]->cil[j]->col;
 
-      if (numWord != crossedWord)
-        {
-          for (int j = 0; j < wi[i]->crossCount; j++)
-            {
-              row2 = wi[i]->cil[j]->row;
-              col2 = wi[i]->cil[j]->col;
-
-              if (row == row2 && col == col2)
-                return crossedWord; // повертаємо порядковий номер слова з яким знайдено перетин
-            }
-        }
+        if (row == row2 && col == col2)
+          return crossedWord; // повертаємо порядковий номер слова з яким знайдено перетин
+      }
     }
+  }
 
   // перетин не знайдено
   return -1;
@@ -1057,13 +1057,13 @@ int tableTemplateWidget::findWordByRC(int row, int col)
   int col2 = -1;
 
   for (int i = 0; i < wi.count(); i++)
-    {
-      row2 = wi[i]->row;
-      col2 = wi[i]->col;
+  {
+    row2 = wi[i]->row;
+    col2 = wi[i]->col;
 
-      if (row == row2 && col == col2)
-        return wi[i]->numWord;
-    }
+    if (row == row2 && col == col2)
+      return wi[i]->numWord;
+  }
 
   return -1;
 }
@@ -1072,35 +1072,35 @@ int tableTemplateWidget::findWordByRC(int row, int col)
 void tableTemplateWidget::makeCrossword(void)
 {
   if (templateId == 0)
-    {
-      qDebug() << tr("makeCrossword: Template dosen't choiced!");
-      emit maked();
+  {
+    qDebug() << tr("makeCrossword: Template dosen't choiced!");
+    emit maked();
 
-      return;
-    }
+    return;
+  }
 
   if (isDirty)
-    {
-      QMessageBox save(QMessageBox::Question,
-                       tr("Template is changed!"),
-                       tr("Template is changed, do you want save changes?"),
-                       QMessageBox::Save | QMessageBox::Discard);
+  {
+    QMessageBox save(QMessageBox::Question,
+                     tr("Template is changed!"),
+                     tr("Template is changed, do you want save changes?"),
+                     QMessageBox::Save | QMessageBox::Discard);
 
-      int code = save.exec();
+    int code = save.exec();
 
-      if (code == QMessageBox::Save)
-        saveToDB();
-      else
-        return;
-    }
+    if (code == QMessageBox::Save)
+      saveToDB();
+    else
+      return;
+  }
 
   if (mct)
-    {
-      mct->setData(wi);
-      mct->startScanning();
-      mct->start(QThread::LowestPriority);
-      connect(mct, SIGNAL(finished()), this, SLOT(makeFinished()));
-    }
+  {
+    mct->setData(wi);
+    mct->startScanning();
+    mct->start(QThread::LowestPriority);
+    connect(mct, SIGNAL(finished()), this, SLOT(makeFinished()));
+  }
 }
 
 void tableTemplateWidget::displayCrossword(void)
@@ -1112,27 +1112,27 @@ void tableTemplateWidget::displayCrossword(void)
   QTableWidgetItem *cell = NULL;
 
   for (int i = 0; i < wi.count(); i++)
+  {
+    row = wi[i]->row;
+    col = wi[i]->col;
+    len = wi[i]->length;
+    orient = wi[i]->orient;
+    text = wi[i]->text;
+
+    for (int j = 0; j < len; j++)
     {
-      row = wi[i]->row;
-      col = wi[i]->col;
-      len = wi[i]->length;
-      orient = wi[i]->orient;
-      text = wi[i]->text;
+      if (orient)
+        cell = item(row+j, col);
+      else
+        cell = item(row, col+j);
 
-      for (int j = 0; j < len; j++)
-        {
-          if (orient)
-            cell = item(row+j, col);
-          else
-            cell = item(row, col+j);
-
-          if (cell)
-            {
-              if (!text.isEmpty())
-                cell->setText(QString(text[j]).toUpper());
-            }
-        }
+      if (cell)
+      {
+        if (!text.isEmpty())
+          cell->setText(QString(text[j]).toUpper());
+      }
     }
+  }
 }
 
 void tableTemplateWidget::printPreview(QPrinter *prn)
@@ -1179,46 +1179,46 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
 
     QSqlError le = query.lastError();
     if (le.type() == QSqlError::NoError)
+    {
+      if (query.isActive() && query.isSelect())
+        countRecords = query.size();
+      else
+        countRecords = -1;
+
+      if (countRecords > 0)
       {
-        if (query.isActive() && query.isSelect())
-          countRecords = query.size();
-        else
-          countRecords = -1;
+        int previewNo = query.record().indexOf("_preview");
 
-        if (countRecords > 0)
-          {
-            int previewNo = query.record().indexOf("_preview");
+        QByteArray _ba2;
+        QBuffer buffer2(&_ba2);
 
-            QByteArray _ba2;
-            QBuffer buffer2(&_ba2);
+        query.first();
+        _ba2 = query.value(previewNo).toByteArray();
 
-            query.first();
-            _ba2 = query.value(previewNo).toByteArray();
+        buffer2.setBuffer(&_ba2);
+        buffer2.open(QIODevice::ReadWrite | QIODevice::Unbuffered);
 
-            buffer2.setBuffer(&_ba2);
-            buffer2.open(QIODevice::ReadWrite | QIODevice::Unbuffered);
+        imagePreview.load(&buffer2, "PNG");
+        imageW = imagePreview.width();
+        imageH = imagePreview.height();
 
-            imagePreview.load(&buffer2, "PNG");
-            imageW = imagePreview.width();
-            imageH = imagePreview.height();
+        if (imageW > pageW || imageH > pageH)
+        {
+          imagePreview = imagePreview.scaled(QSize(pageW, pageW), Qt::KeepAspectRatio);
 
-            if (imageW > pageW || imageH > pageH)
-              {
-                imagePreview = imagePreview.scaled(QSize(pageW, pageW), Qt::KeepAspectRatio);
+          imageW = imagePreview.width();
+          imageH = imagePreview.height();
+        }
 
-                imageW = imagePreview.width();
-                imageH = imagePreview.height();
-              }
+        topPoint += gapH;
+        painter.drawImage(QPoint(leftPoint, topPoint), imagePreview);
 
-            topPoint += gapH;
-            painter.drawImage(QPoint(leftPoint, topPoint), imagePreview);
+        //  doc.addResource(QTextDocument::ImageResource, QUrl("image"), QVariant(imagePreview));
+        //	cursor.insertImage("image");
 
-            //  doc.addResource(QTextDocument::ImageResource, QUrl("image"), QVariant(imagePreview));
-            //	cursor.insertImage("image");
-
-            buffer2.close();
-          }
+        buffer2.close();
       }
+    }
 
     int x = imageW + gapV + leftM;
     int y = topPoint;
@@ -1232,10 +1232,10 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
     text = "%1.%2; ";
 
     for (int i = 0; i < wi.count(); i++)
-      {
-        if (wi[i]->text != "")
-          res += text.arg(wi[i]->numWord+1).arg(wi[i]->text);
-      }
+    {
+      if (wi[i]->text != "")
+        res += text.arg(wi[i]->numWord+1).arg(wi[i]->text);
+    }
 
     painter.drawText(wordsRect, Qt::TextWordWrap, res);
     //	cursor.insertHtml(res);
@@ -1299,31 +1299,31 @@ void tableTemplateWidget::prepareQuestions(void)
   questionsV = "<html><body>";
   questionsV += "<b>По вертикалі:</b><br>\n";
   for (i = 0; i < wi.count(); i++)
+  {
+    if (wi[i]->orient == vertical)
     {
-      if (wi[i]->orient == vertical)
+      query.addBindValue(QVariant(wi[i]->wordId));
+      query.exec();
+
+      le = query.lastError();
+      if (le.type() == QSqlError::NoError)
+      {
+        if (query.isActive() && query.isSelect())
+          countRecords = query.size();
+        else
+          countRecords = -1;
+
+        if (countRecords > 0)
         {
-          query.addBindValue(QVariant(wi[i]->wordId));
-          query.exec();
+          questionNo = query.record().indexOf("_question");
+          query.first();
 
-          le = query.lastError();
-          if (le.type() == QSqlError::NoError)
-            {
-              if (query.isActive() && query.isSelect())
-                countRecords = query.size();
-              else
-                countRecords = -1;
-
-              if (countRecords > 0)
-                {
-                  questionNo = query.record().indexOf("_question");
-                  query.first();
-
-                  question = query.value(questionNo).toString();
-                  questionMap[wi[i]->numWord+1] = question;
-                }
-            }
+          question = query.value(questionNo).toString();
+          questionMap[wi[i]->numWord+1] = question;
         }
+      }
     }
+  }
 
   for (it = questionMap.begin(); it != questionMap.end(); ++it)
     questionsV += text.arg(it.key()).arg(it.value());
@@ -1334,31 +1334,31 @@ void tableTemplateWidget::prepareQuestions(void)
   questionsH = "\n\n<br><br><html><body>";
   questionsH += "<b>По горизонталі:</b><br>\n";
   for (i = 0; i < wi.count(); i++)
+  {
+    if (wi[i]->orient == horizontal)
     {
-      if (wi[i]->orient == horizontal)
+      query.addBindValue(QVariant(wi[i]->wordId));
+      query.exec();
+
+      le = query.lastError();
+      if (le.type() == QSqlError::NoError)
+      {
+        if (query.isActive() && query.isSelect())
+          countRecords = query.size();
+        else
+          countRecords = -1;
+
+        if (countRecords > 0)
         {
-          query.addBindValue(QVariant(wi[i]->wordId));
-          query.exec();
+          questionNo = query.record().indexOf("_question");
+          query.first();
 
-          le = query.lastError();
-          if (le.type() == QSqlError::NoError)
-            {
-              if (query.isActive() && query.isSelect())
-                countRecords = query.size();
-              else
-                countRecords = -1;
-
-              if (countRecords > 0)
-                {
-                  questionNo = query.record().indexOf("_question");
-                  query.first();
-
-                  question = query.value(questionNo).toString();
-                  questionMap[wi[i]->numWord+1] = question;
-                }
-            }
+          question = query.value(questionNo).toString();
+          questionMap[wi[i]->numWord+1] = question;
         }
+      }
     }
+  }
 
   for (it = questionMap.begin(); it != questionMap.end(); ++it)
     questionsH += text.arg(it.key()).arg(it.value());

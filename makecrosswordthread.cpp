@@ -25,83 +25,83 @@ void makeCrosswordThread::run(void)
   // Знаходимо перше слово якщо стек пустий. А що коли не пустий? Чому виходимо?
   //
   if ( findWord(curWord) && workStack.isEmpty())
-    {
-      workStack.push(curWord);
-      //foundedWords++;
-    }
+  {
+    workStack.push(curWord);
+    //foundedWords++;
+  }
   else
-    {
-      qDebug() << tr("makeCrossword: Can't find any word for startup!");
-      emit showStatusBarMessage( tr("makeCrossword: Can't find any word for startup!") );
-      return;
-    }
+  {
+    qDebug() << tr("makeCrossword: Can't find any word for startup!");
+    emit showStatusBarMessage( tr("makeCrossword: Can't find any word for startup!") );
+    return;
+  }
 
   /* зробити ще одну змінну яка буде враховувати кількість знайдених слів і якщо вона не пуста
    * треба шукати слова з незаповненими перетинами і для них шукати відповідні до шаблону слова
    */
   while ( !workStack.isEmpty() )
+  {
+    int curCross = 0;
+    while (curCross < wi[curWord]->crossCount)
     {
-      int curCross = 0;
-      while (curCross < wi[curWord]->crossCount)
+      int crossedWord = wi[curWord]->cil[curCross]->currentWord;
+
+      if ( !wi[crossedWord]->filled )
+      {
+        do
         {
-          int crossedWord = wi[curWord]->cil[curCross]->currentWord;
-
-          if ( !wi[crossedWord]->filled )
-            {
-              do
-                {
-                  if ( findWord(crossedWord) )
-                    {
-                      workStack.push(crossedWord);
-                      curCross = 0;
-                      //foundedWords++;
-                      curWord = crossedWord;
-                      break;
-                    }
-                  else
-                    {
-                      clearWord(crossedWord);
-
-                      if ( workStack.isEmpty() )
-                        {
-                          qDebug() << tr("makeCrossword: Stack is empty!");
-                          emit showStatusBarMessage( tr("makeCrossword: Stack is empty!") );
-                          return;
-                        }
-                      else
-                        {
-                          crossedWord = workStack.pop();
-                          //foundedWords--;
-                        }
-                    }
-                }
-              while ( true );
-            }
+          if ( findWord(crossedWord) )
+          {
+            workStack.push(crossedWord);
+            curCross = 0;
+            //foundedWords++;
+            curWord = crossedWord;
+            break;
+          }
           else
+          {
+            clearWord(crossedWord);
+
+            if ( workStack.isEmpty() )
             {
-              if ( wi[curWord]->crossCount == 1 )
-                workStack.push(crossedWord);
-
-              //foundedWords++;
-              curCross++;
+              qDebug() << tr("makeCrossword: Stack is empty!");
+              emit showStatusBarMessage( tr("makeCrossword: Stack is empty!") );
+              return;
             }
+            else
+            {
+              crossedWord = workStack.pop();
+              //foundedWords--;
+            }
+          }
         }
-
-      // Подивитися що робить ця умова. Як я пригадую, це може бути на фінішну перевірку стеку
-      // тобто десь можуть бути окремі блоки не привязані до основного кросворду, ніби
-      // кросворд в кросворді. Або якесь інше призначення, може і лишня умова.
-      if ( workStack.isEmpty() )
-        {
-          qDebug() << tr("makeCrossword: Done");
-          emit showStatusBarMessage( tr("makeCrossword: Done") );
-          return;
-        }
+        while ( true );
+      }
       else
-        {
-          curWord = workStack.pop();
-          //foundedWords--;
-        }
+      {
+        if ( wi[curWord]->crossCount == 1 )
+          workStack.push(crossedWord);
+
+        //foundedWords++;
+        curCross++;
+      }
     }
+
+    // Подивитися що робить ця умова. Як я пригадую, це може бути на фінішну перевірку стеку
+    // тобто десь можуть бути окремі блоки не привязані до основного кросворду, ніби
+    // кросворд в кросворді. Або якесь інше призначення, може і лишня умова.
+    if ( workStack.isEmpty() )
+    {
+      qDebug() << tr("makeCrossword: Done");
+      emit showStatusBarMessage( tr("makeCrossword: Done") );
+      return;
+    }
+    else
+    {
+      curWord = workStack.pop();
+      //foundedWords--;
+    }
+  }
 }
 
 bool makeCrosswordThread::findWord(int curWord)
@@ -116,24 +116,24 @@ bool makeCrosswordThread::findWord(int curWord)
   int li = wi[curWord]->listIndex;
 
   for (int i = li; i < numberOfWordsInVocabulary; i++)
+  {
+    if (wd[i]->used == false)
     {
-      if (wd[i]->used == false)
-        {
-          match = rx.exactMatch(wd[i]->word);
+      match = rx.exactMatch(wd[i]->word);
 
-          if (match)
-            {
-              wi[curWord]->listIndex = wd[i]->id;
-              wi[curWord]->wordId = wd[i]->id;
-              wi[curWord]->text = wd[i]->word;
-              wi[curWord]->filled = true;
+      if (match)
+      {
+        wi[curWord]->listIndex = wd[i]->id;
+        wi[curWord]->wordId = wd[i]->id;
+        wi[curWord]->text = wd[i]->word;
+        wi[curWord]->filled = true;
 
-              wd[i]->used = true;
+        wd[i]->used = true;
 
-              return true;
-            }
-        }
+        return true;
+      }
     }
+  }
 
   //    int id = -1, countRecord = -1, vocabulary = 29;
   //    QString result;
@@ -195,29 +195,27 @@ bool makeCrosswordThread::findWord(int curWord)
  */
 QString makeCrosswordThread::createTemplate(int curWord)
 {
-  wordInfo *w = wi[curWord], *w2 = NULL;
+  wordInfo *w = wi[curWord], *crossedWord = NULL;
   crossInfo *c = NULL, *c2 = NULL;
 
   QString strRegExp(w->length, QChar('.'));
 
   for (int i = 0; i < w->crossCount; i++)
+  {
+    c = w->cil[i];
+    crossedWord = wi[c->currentWord];
+
+    if (crossedWord->filled)
     {
-      c = w->cil[i];
+      for (int j = 0; j < crossedWord->crossCount; j++ )
+      {
+        c2 = crossedWord->cil[j];
 
-      int nw2 = c->currentWord;
-      w2 = wi[nw2];
-
-      if (w2->filled)
-        {
-          for (int j = 0; j < w2->crossCount; j++ )
-            {
-              c2 = w2->cil[j];
-
-              if (curWord == c2->currentWord)
-                strRegExp[c->crossPos] = w2->text[c2->crossPos];
-            }
-        }
+        if (curWord == c2->currentWord)
+          strRegExp[c->crossPos] = crossedWord->text[c2->crossPos];
+      }
     }
+  }
 
   return strRegExp.toLower();
 }
@@ -226,19 +224,22 @@ void makeCrosswordThread::clearWord(int crossedWord)
 {
   wordInfo *w = wi[crossedWord];
 
-  w->text = "";
-  w->filled = false;
+  if (w->wordId > 0)
+  {
+    w->text = "";
+    w->filled = false;
 
-  for (int i = 0; i < numberOfWordsInVocabulary; i++)
+    for (int i = 0; i < numberOfWordsInVocabulary; i++)
     {
       if (w->wordId == wd[i]->id)
         wd[i]->used = false;
     }
+  }
 
-  //    QSqlQuery query;
-  //    query.prepare("UPDATE slovopedia.works SET _used = 0 WHERE _id = ?;");
-  //    query.addBindValue(QVariant(w->wordId));
-  //    query.exec();
+  //QSqlQuery query;
+  //query.prepare("UPDATE slovopedia.works SET _used = 0 WHERE _id = ?;");
+  //query.addBindValue(QVariant(w->wordId));
+  //query.exec();
 }
 
 void makeCrosswordThread::startScanning(void)
@@ -258,6 +259,9 @@ void makeCrosswordThread::setData(QList<wordInfo*> &lwi)
 
 void makeCrosswordThread::setVocabulary(int vocabulary)
 {
+  /*
+   * думаю треба забрати, бо може бути ситуація коли словник поновився, а ми його не перечитаємо
+   */
   if (vocabularyId == vocabulary)
     return;
 
@@ -279,39 +283,39 @@ void makeCrosswordThread::setVocabulary(int vocabulary)
 
   le = query.lastError();
   if (le.type() == QSqlError::NoError)
+  {
+    if (query.isActive() && query.isSelect())
+      countRecord = query.size();
+    else
+      countRecord = -1;
+
+    if (countRecord > 0)
     {
-      if (query.isActive() && query.isSelect())
-        countRecord = query.size();
-      else
-        countRecord = -1;
+      int idNo = query.record().indexOf("_id");
+      int wordNo = query.record().indexOf("_word");
 
-      if (countRecord > 0)
+      while (query.next())
+      {
+        id = query.value(idNo).toInt();
+        word = query.value(wordNo).toString().toLower();
+
+        int idx = word.indexOf(QRegExp("[,-\\s]"), 0);
+
+        if (idx == -1)
         {
-          int idNo = query.record().indexOf("_id");
-          int wordNo = query.record().indexOf("_word");
+          WD = new wordData();
 
-          while (query.next())
-            {
-              id = query.value(idNo).toInt();
-              word = query.value(wordNo).toString().toLower();
+          if (WD)
+          {
+            WD->id = id;
+            WD->word = word;
 
-              int idx = word.indexOf(QRegExp("[,-\\s]"), 0);
-
-              if (idx == -1)
-                {
-                  WD = new wordData();
-
-                  if (WD)
-                    {
-                      WD->id = id;
-                      WD->word = word;
-
-                      wd.append(WD);
-                    }
-                }
-            }
+            wd.append(WD);
+          }
         }
+      }
     }
+  }
 
   numberOfWordsInVocabulary = wd.count();
 }
