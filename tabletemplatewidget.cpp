@@ -388,7 +388,7 @@ void tableTemplateWidget::loadPrivateData(void)
                                 {
                                   c->crossPos = query2.value(cposNo).toInt();
                                   c->crossType = query2.value(ctypeNo).toInt();
-                                  c->numWord = query2.value(numword2No).toInt();
+                                  c->currentWord = query2.value(numword2No).toInt();
 
                                   w->cil.append(c);
                                   c = NULL;
@@ -452,7 +452,7 @@ void tableTemplateWidget::saveToDB()
   QString text;
 
   pngPainter->begin(image);
-    int i, j, nw;
+    int i, j, wordNumber;
     for (i = 0; i < numRow; i++)
       {
         t = src.top() + i * previewSizeCell;
@@ -478,10 +478,10 @@ void tableTemplateWidget::saveToDB()
             pngPainter->drawRect(r);
 
             // виводимо номер слова
-            nw = findWordByRC(i, j) + 1;
-            if ( nw >= 1 )
+            wordNumber = findWordByRC(i, j) + 1;
+            if ( wordNumber >= 1 )
               {
-                text = QVariant(nw).toString();
+                text = QVariant(wordNumber).toString();
                 pngPainter->drawText(r, Qt::AlignLeft | Qt::AlignTop, text);
               }
 
@@ -576,7 +576,7 @@ void tableTemplateWidget::savePrivateData(void)
   QVariantList pdid;
   QVariantList cpos;
   QVariantList ctype;
-  QVariantList nw;
+  QVariantList intersectedWord;
 
   QSqlDriver *drv = db->driver();
 
@@ -613,14 +613,14 @@ void tableTemplateWidget::savePrivateData(void)
               pdid << lastId;
               cpos << cross->crossPos;
               ctype << cross->crossType;
-              nw << cross->numWord2;
+              intersectedWord << cross->intersectedWord;
             }
 
           query2.addBindValue(tmp);
           query2.addBindValue(pdid);
           query2.addBindValue(cpos);
           query2.addBindValue(ctype);
-          query2.addBindValue(nw);
+          query2.addBindValue(intersectedWord);
 
           query2.execBatch(QSqlQuery::ValuesAsRows);
 
@@ -628,7 +628,7 @@ void tableTemplateWidget::savePrivateData(void)
           pdid.clear();
           cpos.clear();
           ctype.clear();
-          nw.clear();
+          intersectedWord.clear();
         }
       else
         qDebug() << "3. savePrivateData: " << le.text();
@@ -807,23 +807,23 @@ void tableTemplateWidget::scanTemplate(void)
   scanHorizontal();
   scanVertical();
 
-  int cc = 0, nw = 0, nw2 = 0;
+  int crossCount = 0, currentWord = 0, crossedWord = 0;
   crossInfo *cross;
 
   // шукаємо інші слова з якими перетинаємося
   for (int i = 0; i < wi.count(); i++)
     {
-      cc = wi[i]->crossCount;
-      nw = wi[i]->numWord;
+      crossCount = wi[i]->crossCount;
+      currentWord = wi[i]->numWord;
 
-      for (int j = 0; j < cc; j++)
+      for (int j = 0; j < crossCount; j++)
         {
           cross = wi[i]->cil[j];
 
-          nw2 = findCrossedWord(cross->row, cross->col, nw);
+          crossedWord = findCrossedWord(cross->row, cross->col, currentWord);
 
-          if (nw2 >= 0)
-            cross->numWord2 = nw2;
+          if (crossedWord >= 0)
+            cross->intersectedWord = crossedWord;
           else
             qDebug() << "scanTemplate: another word for this crosses doesn't finded!!!";
         }
@@ -961,7 +961,6 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
 {
   wordInfo *word;
   crossInfo *cross;
-  //int crossIndex = 0;
   int crossType = 0;
 
   if (length >= 3)
@@ -982,13 +981,10 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
 
               if (crossType)
                 {
-                  //crossIndex++;
-
                   cross = new crossInfo();
-                  cross->numWord = numWord;
+                  cross->currentWord = numWord;
                   cross->row = row;
                   cross->col = col + i;
-                  //cross->crossIndex = crossIndex;
                   cross->crossPos = i;
                   cross->crossType = crossType;
 
@@ -1004,13 +1000,10 @@ void tableTemplateWidget::saveResult(int row, int col,  int length,
 
               if (crossType)
                 {
-                  //crossIndex++;
-
                   cross = new crossInfo();
-                  cross->numWord = numWord;
+                  cross->currentWord = numWord;
                   cross->row = row + i;
                   cross->col = col;
-                  //cross->crossIndex = crossIndex;
                   cross->crossPos = i;
                   cross->crossType = crossType;
 
@@ -1030,13 +1023,13 @@ int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
 {
   int row2 = -1;
   int col2 = -1;
-  int nw2 = -1;
+  int crossedWord = -1;
 
   for (int i = 0; i < wi.count(); i++)
     {
-      nw2 = wi[i]->numWord;
+      crossedWord = wi[i]->numWord;
 
-      if (numWord != nw2)
+      if (numWord != crossedWord)
         {
           for (int j = 0; j < wi[i]->crossCount; j++)
             {
@@ -1044,7 +1037,7 @@ int tableTemplateWidget::findCrossedWord(int row, int col, int numWord)
               col2 = wi[i]->cil[j]->col;
 
               if (row == row2 && col == col2)
-                return nw2; // повертаємо порядковий номер слова з яким знайдено перетин
+                return crossedWord; // повертаємо порядковий номер слова з яким знайдено перетин
             }
         }
     }

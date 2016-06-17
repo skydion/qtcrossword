@@ -44,7 +44,7 @@ void makeCrosswordThread::run(void)
       int curCross = 0;
       while (curCross < wi[curWord]->crossCount)
         {
-          int crossedWord = wi[curWord]->cil[curCross]->numWord;
+          int crossedWord = wi[curWord]->cil[curCross]->currentWord;
 
           if ( !wi[crossedWord]->filled )
             {
@@ -111,6 +111,8 @@ bool makeCrosswordThread::findWord(int curWord)
   QRegExp rx(curWordTemplate);
 
   bool match = false;
+
+  // звідки продовжуємо пошук нового слова?
   int li = wi[curWord]->listIndex;
 
   for (int i = li; i < numberOfWordsInVocabulary; i++)
@@ -202,7 +204,7 @@ QString makeCrosswordThread::createTemplate(int curWord)
     {
       c = w->cil[i];
 
-      int nw2 = c->numWord;
+      int nw2 = c->currentWord;
       w2 = wi[nw2];
 
       if (w2->filled)
@@ -211,7 +213,7 @@ QString makeCrosswordThread::createTemplate(int curWord)
             {
               c2 = w2->cil[j];
 
-              if (curWord == c2->numWord)
+              if (curWord == c2->currentWord)
                 strRegExp[c->crossPos] = w2->text[c2->crossPos];
             }
         }

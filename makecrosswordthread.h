@@ -13,12 +13,22 @@
 
 #include "crosswordinfo.h"
 
+/*
+ * слова зі словнику
+ */
 class wordData
 {
 public:
+  //
   int id;
+
+  // слово зі словника
   QString word;
+
+  // запитання для слова
   QString question;
+
+  // вже використане слово чи можна використати
   bool used;
 
 public:
@@ -54,14 +64,21 @@ public slots:
 
 private:
   bool stop;
+
   QList<wordInfo*> &wi;
+
+  /* список слів завантажений з БД
+   * для швидкодії? може потім викинути
+   */
+  QList<wordData*> wd;
+
   QStack<int> workStack;
 
+  // словник по якому складаємо кросворд
   int vocabularyId;
 
   // кількість слів в словнику по якому складаємо кросворд
   int numberOfWordsInVocabulary;
-  QList<wordData*> wd;
 };
 
 #endif // MAKECROSSWORDTHREAD_H
