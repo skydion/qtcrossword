@@ -191,7 +191,7 @@ bool makeCrosswordThread::findWord(int curWord)
 
 /*
  * створюємо шаблон слова по наявній інформації з перетинів
- * які має дане слово з іншими словами, повертаємо регекс.
+ * які має дане слово з іншими словами, повертаємо регулярний вираз для mysql.
  */
 QString makeCrosswordThread::createTemplate(int curWord)
 {
@@ -199,6 +199,8 @@ QString makeCrosswordThread::createTemplate(int curWord)
   crossInfo *c = NULL, *c2 = NULL;
 
   QString strRegExp(w->length, QChar('.'));
+
+  QString c0438("\u0438"), c044c("\u044c"), except("[^" + c0438 + c044c + "]");
 
   for (int i = 0; i < w->crossCount; i++)
   {
@@ -214,6 +216,46 @@ QString makeCrosswordThread::createTemplate(int curWord)
         if (curWord == c2->currentWord)
           strRegExp[c->crossPos] = crossedWord->text[c2->crossPos];
       }
+    }
+    else
+    {
+      // перевіряємо перетини щоб виключити ситуації коли слово закінчується
+      // чи починається на букви з яких інше слово розпочатися не може
+      // наприклад - И, Ь
+
+      // TODO: подумати над нюансами цих перетинів,
+      // і якщо нічого заважати не буде з'єднати все в один IF.
+      // Також подумати як генерувати потрібний sql запит
+      // на базі цього регулярного виразу
+
+      QString pos;
+
+      if (c->crossPos == w->length-1)
+        pos = "Last crossing";
+      else if (c->crossPos == 0)
+        pos = "First crossing";
+
+      if (c->crossType == 3) // кінець-початок
+      {
+        strRegExp.replace(c->crossPos, 1, except);
+      }
+      else if (c->crossType == 6) // початок-початок
+      {
+        strRegExp.replace(c->crossPos, 1, except);
+      }
+//      else if (c->crossType == 9) // кінець-кінець
+//      {
+//        strRegExp.replace(c->crossPos, 1, except);
+//      }
+      else if (c->crossType == 12) // початок-кінець
+      {
+        strRegExp.replace(c->crossPos, 1, except);
+      }
+
+      qDebug() << "crossType ==" << c->crossType
+               << ", currentWord ==" << curWord+1
+               << ", strRegExp ==" << strRegExp
+               << ", pos ==" << pos;
     }
   }
 

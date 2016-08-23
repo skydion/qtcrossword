@@ -1229,7 +1229,7 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
     painter.drawRect(wordsRect);
 
     QString res;
-    text = "%1.%2; ";
+    text = "%1. %2; ";
 
     for (int i = 0; i < wi.count(); i++)
     {
@@ -1238,7 +1238,6 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
     }
 
     painter.drawText(wordsRect, Qt::TextWordWrap, res);
-    //	cursor.insertHtml(res);
 
     x = leftM;
     y = imageH + topPoint + gapH;
@@ -1247,8 +1246,6 @@ void tableTemplateWidget::printPreview(QPrinter *prn)
 
     QRect questionsRect(x, y, w, h);
     painter.drawRect(questionsRect);
-
-    text = "<b>%1.</b>%2; ";
 
     prepareQuestions();
 
@@ -1290,7 +1287,7 @@ void tableTemplateWidget::prepareQuestions(void)
 
   query.prepare("SELECT _question FROM slovopedia.works WHERE _id = ?;");
 
-  QString question, text = "%1.%2; ";
+  QString question, text = "<b>%1</b>. %2;";
   int questionNo, i, countRecords;
 
   QMap<int, QString> questionMap;
@@ -1331,7 +1328,7 @@ void tableTemplateWidget::prepareQuestions(void)
   questionMap.clear();
   questionsV += "</body></html>";
 
-  questionsH = "\n\n<br><br><html><body>";
+  questionsH = "<br><br><html><body>";
   questionsH += "<b>По горизонталі:</b><br>\n";
   for (i = 0; i < wi.count(); i++)
   {
